@@ -29,9 +29,45 @@ class SignupController {
     }
   }
 
+  /// Valida o checkbox e retorna se estão com erro
   bool validateCheckBox() {
     checkBoxError = !isActiveCheckBox;
     return isActiveCheckBox;
+  }
+
+  /// Verifica se o formulário é válido
+  bool isFormValid(FormState formState) {
+    return formState.validate();
+  }
+
+  /// Valida todos os requisitos: formulário + checkbox da política
+  /// Retorna true se pode fazer o signup (tudo passou na validação)
+  /// Se formulário está OK mas checkbox não está marcado, marca o checkbox com erro e retorna false
+  bool validateAllRequirements(FormState formState) {
+    final formIsValid = isFormValid(formState);
+
+    if (formIsValid && !isActiveCheckBox) {
+      // Formulário OK, mas checkbox de política/termos não marcado
+      checkBoxError = true;
+      return false;
+    }
+
+    if (!formIsValid) {
+      // Formulário com erros
+      return false;
+    }
+
+    // Tudo validado com sucesso
+    checkBoxError = false;
+    return true;
+  }
+
+  /// Executa o signup com loading
+  /// Deve ser chamado após validação bem-sucedida
+  Future<void> executeSignUp() async {
+    isLoading = true;
+    await Future.delayed(Duration(seconds: 2));
+    isLoading = false;
   }
 
   Future<void> signUp() async {
@@ -80,3 +116,5 @@ class SignupController {
   bool get possuiCaractereEspecial =>
       senhaController.text.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
 }
+
+

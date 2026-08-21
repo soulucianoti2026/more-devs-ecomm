@@ -20,22 +20,13 @@ class _SignupPageState extends State<SignupPage> {
   final GlobalKey<FormState> key = GlobalKey<FormState>();
 
   Future<void> _handleSignup() async {
-    final isFormValid = key.currentState!.validate();
+    final canSignUp = signupController.validateAllRequirements(key.currentState!);
 
-    setState(() {
-      signupController.validateCheckBox();
-    });
+    setState(() {});
 
-    if (isFormValid && signupController.isActiveCheckBox) {
-      setState(() {
-        signupController.isLoading = true;
-      });
-
-      await signupController.signUp();
-
-      setState(() {
-        signupController.isLoading = false;
-      });
+    if (canSignUp) {
+      await signupController.executeSignUp();
+      setState(() {});
     }
   }
 
