@@ -6,19 +6,19 @@ class AppCheckBox extends StatelessWidget {
     super.key,
     required this.value,
     this.onChanged,
-    this.isError = false,
+    this.isError,
   });
 
   final bool value;
   final Function(bool?)? onChanged;
-  final bool isError;
+  final bool? isError;
 
   @override
   Widget build(BuildContext context) {
     return Checkbox(
       value: value,
       onChanged: onChanged,
-      side: isError ? BorderSide(color: AppColors.red, width: 2) : null,
+      side: isError != null ? BorderSide(color: AppColors.red, width: 2) :BorderSide(color: AppColors.black)
     );
   }
 }

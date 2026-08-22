@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class SignupController {
+class SignupController extends ChangeNotifier {
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   TextEditingController emailController = TextEditingController();
@@ -9,7 +9,7 @@ class SignupController {
   TextEditingController confirmarSenhaController = TextEditingController();
 
   bool isActiveCheckBox = false;
-  bool checkBoxError = false;
+  bool? checkBoxError = false;
   bool isLoading = false;
 
   List<Map<String, bool>> getPasswordRequirements() {
@@ -25,14 +25,21 @@ class SignupController {
   void changeActiveCheckBox() {
     isActiveCheckBox = !isActiveCheckBox;
     if (isActiveCheckBox) {
-      checkBoxError = false;
+      checkBoxError = null;
     }
+    notifyListeners();
+  }
+
+  void updatePasswordRequirements() {
+    notifyListeners();
   }
 
   /// Valida o checkbox e retorna se estão com erro
   bool validateCheckBox() {
-    checkBoxError = !isActiveCheckBox;
-    return isActiveCheckBox;
+    if(isActiveCheckBox){
+      return true;
+    }
+    return false;
   }
 
   /// Verifica se o formulário é válido
@@ -49,25 +56,38 @@ class SignupController {
     if (formIsValid && !isActiveCheckBox) {
       // Formulário OK, mas checkbox de política/termos não marcado
       checkBoxError = true;
+      notifyListeners();
       return false;
     }
 
     if (!formIsValid) {
       // Formulário com erros
+      notifyListeners();
       return false;
     }
 
     // Tudo validado com sucesso
     checkBoxError = false;
+    notifyListeners();
     return true;
   }
 
   /// Executa o signup com loading
   /// Deve ser chamado após validação bem-sucedida
   Future<void> executeSignUp() async {
+    if(key.currentState!.validate()){
+    if(!validateCheckBox()){
+      checkBoxError = true;
+      notifyListeners();
+       return;
+    }
     isLoading = true;
-    await Future.delayed(Duration(seconds: 2));
+    notifyListeners();
+    await Future.delayed(const Duration(seconds: 2));
     isLoading = false;
+    notifyListeners();
+    }
+
   }
 
   Future<void> signUp() async {
@@ -115,6 +135,12 @@ class SignupController {
   bool get minSeisCaracteres => senhaController.text.length >= 6;
   bool get possuiCaractereEspecial =>
       senhaController.text.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+
+
+final GlobalKey<FormState> key = GlobalKey<FormState>();
+
+
 }
+
 
 

@@ -9,13 +9,13 @@ import 'package:more_devs_do_zero/shared/widgets/app_text_field.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
-   LoginPage({super.key});
+   const LoginPage({super.key});
 
   static const String route = '/login';
 
-  LoginController loginController = LoginController();
+  //LoginController loginController = LoginController();
 
-  final GlobalKey<FormState> key = GlobalKey<FormState>();
+  //final GlobalKey<FormState> key = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class LoginPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Form(
-                    key: key,
+                    key: controller.key,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,17 +46,17 @@ class LoginPage extends StatelessWidget {
                         ),
                         Spacer(flex: 2),
                         AppTextField(
-                          controller: loginController.emailController,
+                          controller: controller.emailController,
                           validator: (value) {
-                            return loginController.validateEmail(value);
+                            return controller.validateEmail(value);
                           },
                           hintText: 'email@dominio.com',
                         ),
                         SizedBox(height: 16),
                         AppTextField(
-                          controller: loginController.senhaController,
+                          controller: controller.senhaController,
                           validator: (value) {
-                            return loginController.validateSenha(value);
+                            return controller.validateSenha(value);
                           },
                           hintText: '****************',
                           obscureText: true,
@@ -65,9 +65,9 @@ class LoginPage extends StatelessWidget {
                         Row(
                           children: [
                             AppCheckBox(
-                              value: loginController.isActiveCheckBox,
+                              value: controller.isActiveCheckBox,
                               onChanged: (value) => {
-                                loginController.changeActiveCheckBox(),
+                                controller.changeActiveCheckBox(),
                               },
                             ),
                             Text('Lembrar-me'),

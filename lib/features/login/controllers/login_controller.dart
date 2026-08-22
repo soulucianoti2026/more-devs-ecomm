@@ -7,9 +7,7 @@ class LoginController extends ChangeNotifier {
   TextEditingController senhaController = TextEditingController();
   bool isActiveCheckBox = false;
   final GlobalKey<FormState> key = GlobalKey<FormState>();
-
   bool isLoading = false;
-
   bool get isEmailValid => _emailRegex.hasMatch(emailController.text.trim());
   bool get isSenhaValid =>
       senhaController.text.trim().length >= _caracterMinimoSenha;
