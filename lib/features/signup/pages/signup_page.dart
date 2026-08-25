@@ -22,9 +22,10 @@ class _SignupPageState extends State<SignupPage> {
   Future<void> _handleSignup() async {
     final isFormValid = key.currentState!.validate();
 
-    setState(() {
-      signupController.validateCheckBox();
-    });
+    if (!signupController.validateCheckBox()) {
+      setState(() {});
+      return;
+    }
 
     if (isFormValid && signupController.isActiveCheckBox) {
       setState(() {
@@ -107,8 +108,8 @@ class _SignupPageState extends State<SignupPage> {
                 Row(
                   children: [
                     AppCheckBox(
-                      value: signupController.isActiveCheckBox,
                       isError: signupController.checkBoxError,
+                      value: signupController.isActiveCheckBox,
                       onChanged: (value) {
                         setState(() {
                           signupController.changeActiveCheckBox();

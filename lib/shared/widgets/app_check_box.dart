@@ -18,7 +18,7 @@ class AppCheckBox extends StatelessWidget {
     return Checkbox(
       value: value,
       onChanged: onChanged,
-      side: isError ? BorderSide(color: AppColors.red, width: 2) : null,
+      side: isError ? BorderSide(color: AppColors.red, width: 3) : null,
     );
   }
 }

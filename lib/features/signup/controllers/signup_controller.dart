@@ -8,8 +8,9 @@ class SignupController {
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmarSenhaController = TextEditingController();
 
-  bool isActiveCheckBox = false;
   bool checkBoxError = false;
+
+  bool isActiveCheckBox = false;
   bool isLoading = false;
 
   List<Map<String, bool>> getPasswordRequirements() {
@@ -22,16 +23,16 @@ class SignupController {
     ];
   }
 
+  bool validateCheckBox() {
+    checkBoxError = !isActiveCheckBox;
+    return isActiveCheckBox;
+  }
+
   void changeActiveCheckBox() {
     isActiveCheckBox = !isActiveCheckBox;
     if (isActiveCheckBox) {
       checkBoxError = false;
     }
-  }
-
-  bool validateCheckBox() {
-    checkBoxError = !isActiveCheckBox;
-    return isActiveCheckBox;
   }
 
   Future<void> signUp() async {
