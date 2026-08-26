@@ -1,9 +1,11 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/features/recover/pages/recover_page.dart';
 import 'package:more_devs_do_zero/features/signup/pages/signup_page.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
+import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_check_box.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_text_field.dart';
@@ -92,10 +94,12 @@ class LoginPage extends StatelessWidget {
                               label: 'Entrar',
                               isLoading: controller.isLoading,
                               onPressed: () async {
+                                
                                 try {
                                   await controller.handleLogin();
-                                  Navigator.pushNamed(context, HomePage.route);
-                                } catch (e) {
+                                  Navigator.popAndPushNamed(context, HomePage.route);
+                                } on AuthExeception catch (e) {
+                                  AnimatedSnackBar.material(e.message, type: AnimatedSnackBarType.error,mobileSnackBarPosition: MobileSnackBarPosition.bottom).show(context);
                                   //TODO adicionar snack bar
                                 }
                               },

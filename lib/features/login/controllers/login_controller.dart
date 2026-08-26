@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-
-class User {
-  final String nome;
-  final String email;
-
-  User({required this.nome, required this.email});
-}
+import 'package:more_devs_do_zero/features/login/model/user.dart';
+import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
 
 class LoginController extends ChangeNotifier {
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -29,24 +24,39 @@ class LoginController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> handleLogin() async {
-    if (key.currentState!.validate()) {
-      isLoading = true;
-      notifyListeners();
+void changeIsLoading(bool value) {
+    isLoading = value;
+    notifyListeners();
 
+}
+
+
+
+  Future<void> handleLogin() async {
+    if (!key.currentState!.validate()) {
+      throw ErrorDescription('Validacao_incorreta');
+    }
+      
+      changeIsLoading(true);
+      try {
       await login();
-      isLoading = false;
-      notifyListeners();
       emailController.clear();
       senhaController.clear();
-      return;
-    }
-    throw ErrorDescription('validacao_incorreta');
-  }
 
-  Future<void> login() async {
+      } finally {
+        changeIsLoading(false);
+      }
+
+    }
+    Future<void> login() async {
     //Simula chamada da API
     await Future.delayed(const Duration(seconds: 2));
+    if(
+      emailController.text.trim() != 'vitor6890@gmail.com'
+      || senhaController.text.trim() != '123456'
+    ){
+      throw AuthExeception('Email ou senha incorretos.');
+    }
     user = User(nome: 'Vitor', email: emailController.text);
   }
 
@@ -63,4 +73,35 @@ class LoginController extends ChangeNotifier {
     }
     return 'Senha inválida';
   }
-}
+    //throw ErrorDescription('validacao_incorreta');
+  }
+
+  
+
+final List<Map<String, dynamic>> productsJson = [
+  {
+    'brand': 'Natural da terra',
+    'name': 'Rabanete',
+    'imageUrl': 'https://i.postimg.cc/8Pt82Qmf/Image-1.png',
+    'price': 10.99,
+  },
+  {
+    'brand': 'Akatsu',
+    'name': 'Acerola',
+    'imageUrl': 'https://i.postimg.cc/BQMWr9B8/Image.png',
+    'price': 7.99,
+  },
+  {
+    'brand': 'Natural da terra',
+    'name': 'Cogumelo',
+    'imageUrl': 'https://i.postimg.cc/RVP8P1vw/Image-2.png',
+    'price': 12.19,
+  },
+  {
+    'brand': 'Natural da terra',
+    'name': 'Cogumelo',
+    'imageUrl': 'https://i.postimg.cc/RVP8P1vw/Image-2.png',
+    'price': 12.19,
+  },
+];
+ 
