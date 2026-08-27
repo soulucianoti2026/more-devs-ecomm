@@ -4,8 +4,8 @@ import 'package:more_devs_do_zero/features/home/models/category_model.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
-import 'package:more_devs_do_zero/shared/mocks.dart';
-import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
+//import 'package:more_devs_do_zero/shared/mocks.dart';
+//import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ), //Sizedbox
               SizedBox(
-                height: 200,
+                height: 230,
                 child: switch (homeController.productsViewState) {
                   ProductsViewState.loading => Center(
                     child: CircularProgressIndicator(),
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                                 style: AppTextStyle.smallGrey,
                               ),
                               Text(
-                                product.price,
+                                product.price.toString(),
                                 style: AppTextStyle.smallBlack,
                               ),
                             ],
