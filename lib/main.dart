@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
+import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
 import 'package:more_devs_do_zero/routes.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
           },
         ),
 
-         ChangeNotifierProvider(
+        ChangeNotifierProvider(
           create: (context) {
             return HomeController();
           },
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           routes: AppRoutes.routes,
-          initialRoute: LoginPage.route,
+          initialRoute: HomePage.route,
         );
       },
     );
