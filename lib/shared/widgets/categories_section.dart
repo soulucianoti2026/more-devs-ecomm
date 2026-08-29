@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/category_model.dart';
 import 'package:more_devs_do_zero/shared/widgets/category_card.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
-import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class CategoriesSection extends StatelessWidget {

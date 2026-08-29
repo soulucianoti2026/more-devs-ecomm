@@ -9,14 +9,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      // title: Consumer<LoginController>(
-      //   builder: (context, loginController, child) {
-      //     // Evita erros caso o usuário ainda não tenha sido carregado
-      //     final userName = loginController.user?.nome ?? 'Usuário';
+      title: Consumer<LoginController>(
+        builder: (context, loginController, child) {
+          // Evita erros caso o usuário ainda não tenha sido carregado
+          final userName = loginController.user?.nome ?? 'Usuário';
 
-      //     return Text('Olá $userName', style: AppTextStyle.title);
-      //   },
-      // ),
+          return Text('Olá $userName', style: AppTextStyle.title);
+        },
+      ),
     );
   }
 

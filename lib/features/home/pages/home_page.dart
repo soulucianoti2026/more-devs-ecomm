@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
-import 'package:more_devs_do_zero/features/home/models/category_model.dart';
-import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:more_devs_do_zero/shared/widgets/categories_section.dart';
 //import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
-import 'package:more_devs_do_zero/shared/app_text_style.dart';
-import 'package:more_devs_do_zero/shared/widgets/category_card.dart';
 import 'package:more_devs_do_zero/shared/widgets/home_appbar.dart';
-import 'package:more_devs_do_zero/shared/widgets/product_card.dart';
 import 'package:more_devs_do_zero/shared/widgets/products_section.dart';
 //import 'package:more_devs_do_zero/shared/mocks.dart';
 //import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
-
 import 'package:provider/provider.dart';
+import 'package:banner_image/banner_image.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,10 +34,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: HomeAppBar(),
+
       body: Consumer<HomeController>(
         builder: (context, homeController, child) {
           return Column(
             children: [
+              BannerImage(
+                itemLength: 1,
+                children: [
+                  // Example of using an asset image. Add your image file
+                  // to `assets/images/mushrooms.jpg` (or change the path).
+                  Image.asset(
+                    'assets/images/mushrooms.jpg',
+                    height: 140,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                    alignment: Alignment.centerRight,
+                  ),
+                ],
+              ),
+
               CategoriesSection(
                 categories: homeController.categories,
                 state: homeController.categoriesViewState,
