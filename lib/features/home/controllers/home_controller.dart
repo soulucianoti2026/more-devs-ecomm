@@ -7,6 +7,13 @@ enum CategoriesViewState { loading, sucess, error }
 
 enum ProductsViewState { loading, sucess, error }
 
+// List<BannerModel> listBanners = [
+//     BannerModel(pathImage: banner1, id: "1"),
+//     BannerModel(pathImage: banner2, id: "2"),
+//     BannerModel(pathImage: banner3, id: "3"),
+//     BannerModel(pathImage: banner4, id: "4"),
+// ];
+
 class HomeController extends ChangeNotifier {
   List<Category> categories = [];
   List<Products> products = [];

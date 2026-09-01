@@ -19,6 +19,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _currentPage = 0; // Controla qual bolinha destacar
+  final PageController _pageController = PageController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -40,16 +43,121 @@ class _HomePageState extends State<HomePage> {
           return Column(
             children: [
               BannerImage(
-                itemLength: 1,
+                itemLength: 2,
+                selectedIndicatorColor: Colors.black,
+                indicatorColor: Colors.grey.shade400,
                 children: [
-                  // Example of using an asset image. Add your image file
-                  // to `assets/images/mushrooms.jpg` (or change the path).
-                  Image.asset(
-                    'assets/images/mushrooms.jpg',
+                  Container(
                     height: 140,
-                    width: double.infinity,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.centerRight,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color.from(
+                        alpha: 1,
+                        red: 0.827,
+                        green: 0.839,
+                        blue: 0.839,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Column(
+                              // Cor de fundo da coluna
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'Aproveite as ofertas',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight(600),
+
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                              ],
+                            ),
+                          ),
+                        ),
+                        ClipRRect(
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(12),
+                          ),
+                          child: Image.asset(
+                            'assets/images/rabanete.jpg',
+                            height: 140,
+                            width: 140,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.centerRight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Container(
+                    height: 140,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color.from(
+                        alpha: 1,
+                        red: 0.827,
+                        green: 0.839,
+                        blue: 0.839,
+                      ), // Uma cor de fundo diferente se quiser
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'Experimente agora!', // Novo Texto
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight
+                                        .w600, // Correção do FontWeight
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                              ],
+                            ),
+                          ),
+                        ),
+                        ClipRRect(
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(12),
+                          ),
+                          child: Image.asset(
+                            'assets/images/cogumelos.jpg', // Substitua pelo caminho do seu segundo banner
+                            height: 140,
+                            width: 140,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.centerRight,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -62,15 +170,15 @@ class _HomePageState extends State<HomePage> {
                 products: homeController.products,
                 state: homeController.productsViewState,
               ),
-              AppElevatedButton(
-                label: 'asdasd',
-                type: ButtonType.filled,
-                onPressed: () {
-                  homeController
-                    ..getCategories()
-                    ..getProducts();
-                },
-              ),
+
+              // AppElevatedButton(
+              //   label: 'asdasd',
+              //   type: ButtonType.filled,
+              //   onPressed: () {
+              //     homeController
+              //       ..getCategories()
+              //       ..getProducts();
+              //},
             ],
           );
         },

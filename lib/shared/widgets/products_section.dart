@@ -17,11 +17,11 @@ class ProductsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      //height: 200,
+      // height: 200,
       child: switch (state) {
         ProductsViewState.error => Text('Problema ao restagar categorias'),
         _ => SizedBox(
-          height: 200,
+          height: 220,
           child: Skeletonizer(
             enabled: state == ProductsViewState.loading,
             child: ListView.builder(
