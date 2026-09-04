@@ -31,7 +31,8 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           routes: AppRoutes.routes,
-          initialRoute: HomePage.route,
+          // initialRoute: HomePage.route,
+          initialRoute: product_by_category.route,
         );
       },
     );

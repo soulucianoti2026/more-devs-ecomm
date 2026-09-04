@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/category_model.dart';
-import 'package:more_devs_do_zero/shared/widgets/category_card.dart';
+import 'package:more_devs_do_zero/features/home/widgets/category_card.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -20,7 +20,7 @@ class CategoriesSection extends StatelessWidget {
     return switch (state) {
       CategoriesViewState.error => const SizedBox(
         height: 150,
-        child: Center(child: Text('Problema ao resgatar categorias')),
+        child: Center(child: Text('Problema ao resgatar categorias.')),
       ),
       _ => Column(
         crossAxisAlignment:
@@ -37,7 +37,7 @@ class CategoriesSection extends StatelessWidget {
                 Text(
                   'Categorias',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700, // Estilo negrito destacado
                     color: Colors.black87,
                   ),
