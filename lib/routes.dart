@@ -11,6 +11,10 @@ class AppRoutes {
     SignupPage.route: (context) => const SignupPage(),
     RecoverPage.route: (context) => const RecoverPage(),
     HomePage.route: (context) => const HomePage(),
-    ProductsByCategoryPage.route: (context) => const ProductsByCategoryPage(),
+    ProductsByCategoryPage.route: (context) {
+      final categoryName =
+          ModalRoute.of(context)?.settings.arguments as String? ?? 'Categoria';
+      return ProductsByCategoryPage(categoryName: categoryName);
+    },
   };
 }

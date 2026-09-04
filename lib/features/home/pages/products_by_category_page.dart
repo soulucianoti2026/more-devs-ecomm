@@ -18,7 +18,10 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.categoryName, style: AppTextStyle.title),
+        title: Text(
+          widget.categoryName,
+          style: AppTextStyle.titleProductByCategory,
+        ),
         actions: [
           IconButton(
             onPressed: () {},

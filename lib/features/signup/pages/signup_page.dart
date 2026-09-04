@@ -119,7 +119,7 @@ class _SignupPageState extends State<SignupPage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          print('CLIQUEI NA LINHA');
+                          //print('CLIQUEI NA LINHA');
                         },
                         child: RichText(
                           textAlign: TextAlign.center,

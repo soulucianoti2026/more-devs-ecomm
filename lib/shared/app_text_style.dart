@@ -28,4 +28,10 @@ class AppTextStyle {
     fontWeight: FontWeight.w500,
     color: AppColors.green,
   );
+
+  static TextStyle titleProductByCategory = TextStyle(
+    color: AppColors.black,
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+  );
 }

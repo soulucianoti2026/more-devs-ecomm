@@ -94,12 +94,19 @@ class LoginPage extends StatelessWidget {
                               label: 'Entrar',
                               isLoading: controller.isLoading,
                               onPressed: () async {
-                                
                                 try {
                                   await controller.handleLogin();
-                                  Navigator.popAndPushNamed(context, HomePage.route);
+                                  Navigator.popAndPushNamed(
+                                    context,
+                                    HomePage.route,
+                                  );
                                 } on AuthExeception catch (e) {
-                                  AnimatedSnackBar.material(e.message, type: AnimatedSnackBarType.error,mobileSnackBarPosition: MobileSnackBarPosition.bottom).show(context);
+                                  AnimatedSnackBar.material(
+                                    e.message,
+                                    type: AnimatedSnackBarType.error,
+                                    mobileSnackBarPosition:
+                                        MobileSnackBarPosition.bottom,
+                                  ).show(context);
                                   //TODO adicionar snack bar
                                 }
                               },
@@ -117,7 +124,7 @@ class LoginPage extends StatelessWidget {
                             //GestureDetector adiciona métodos de interação com usuario ex: onTap
                             GestureDetector(
                               onTap: () {
-                                print('CLIQUEI NA LINHA');
+                                // print('CLIQUEI NA LINHA');
                               },
                               //RichText - Aninhar textos e modificar seu alinhamento
                               child: RichText(
