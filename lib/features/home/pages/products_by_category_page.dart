@@ -56,6 +56,7 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
           ),
         ],
       ),
+<<<<<<< Updated upstream
       body: Consumer<ProductsByCategoryController>(
         builder: (context, controller, child) {
           return CustomScrollView(
@@ -71,6 +72,49 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
                       AppTextField(hintText: 'Insira o nome do produto.'),
                       const SizedBox(height: 16),
                     ],
+=======
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            AppTextField(
+              hintText: 'Buscar produtos',
+              prefixIcon: const Icon(Icons.search),
+              onChanged: (value) {
+                context.read<ProductsByCategoryController>().searchProducts(
+                  value,
+                );
+              },
+            ),
+
+            SizedBox(
+              height: 12,
+            ), // Adicionei um SizedBox para espaçamento entre os campos de pesquisa
+            AppTextField(
+              hintText: 'Pesquisar Marcas ou produtores.',
+              onChanged: (value) {
+                // Lógica de pesquisa aqui
+              },
+            ), //Apptextfield para pesquisar marcas ou produtores.
+            const SizedBox(
+              height: 12, //Espaçamento entre para o grid.
+            ),
+
+            // 3. O Skeletonizer e GridView encapsulados em um Expanded
+            Expanded(
+              child: Skeletonizer(
+                enabled: isLoading,
+                child: GridView.builder(
+                  // Ajustado para zero porque o Padding externo da Column já cuida das laterais
+                  padding: EdgeInsets.zero,
+                  itemCount: products.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 colunas
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio:
+                        0.62, // proporção largura/altura da célula
+>>>>>>> Stashed changes
                   ),
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart
 import 'package:more_devs_do_zero/features/home/controllers/products_by_category_controller.dart';
 import 'package:more_devs_do_zero/features/home/pages/products_by_category_page.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
+import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:more_devs_do_zero/routes.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +33,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) {
             return ProductsByCategoryController();
+          },
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) {
+            return ShoppingCartController();
           },
         ),
       ],
