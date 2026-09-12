@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:more_devs_do_zero/features/home/models/category_model.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
-import 'package:more_devs_do_zero/shared/mocks.dart';
+import 'package:more_devs_do_zero/shared/mocks/mocks.dart';
 
 enum CategoriesViewState { loading, sucess, error }
 

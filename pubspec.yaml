@@ -2,7 +2,7 @@ name: more_devs_do_zero
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -41,6 +41,7 @@ dependencies:
   banner_image: ^1.1.2
   carousel_slider: ^5.1.2
   smooth_page_indicator: ^3.0.0
+  path_provider: ^2.1.5
 
 flutter_native_splash:
   color: "#FFFFFF"
@@ -52,19 +53,17 @@ flutter_native_splash:
     # color_dark: "#042a49"
 
     # center-logo
-    # If this parameter is not specified, the app's launcher icon will be used instead. 
-    # Please note that the splash screen will be clipped to a circle on the center of the screen. 
-    # with background: 960×960 px (fit within circle 640px in diameter)    
+    # If this parameter is not specified, the app's launcher icon will be used instead.
+    # Please note that the splash screen will be clipped to a circle on the center of the screen.
+    # with background: 960×960 px (fit within circle 640px in diameter)
     # without background: 1152×1152 px (fit within circle 768px in diameter)
-    # ensure that the most important design elements of your image are placed within a circular area 
+    # ensure that the most important design elements of your image are placed within a circular area
     image: assets/images/logo.png
-    # image_dark: assets/images/logo/logo-splash2.png  
+    # image_dark: assets/images/logo/logo-splash2.png
 
     # center-logo background color
     icon_background_color: "#111111"
     # icon_background_color_dark: "#eeeeee"
-
-
 
 dev_dependencies:
   flutter_test:
@@ -82,7 +81,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

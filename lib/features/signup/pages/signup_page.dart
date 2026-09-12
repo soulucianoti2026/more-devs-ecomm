@@ -1,4 +1,6 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
 import 'package:more_devs_do_zero/features/signup/controllers/signup_controller.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_check_box.dart';
@@ -34,9 +36,26 @@ class _SignupPageState extends State<SignupPage> {
 
       await signupController.signUp();
 
+      if (!mounted) return;
+
       setState(() {
         signupController.isLoading = false;
       });
+
+      AnimatedSnackBar.material(
+        'Conta criada com sucesso!',
+        type: AnimatedSnackBarType.success,
+        mobileSnackBarPosition: MobileSnackBarPosition.bottom,
+      ).show(context);
+
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      if (!mounted) return;
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        LoginPage.route,
+        (route) => false,
+      );
     }
   }
 

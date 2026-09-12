@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
 import 'package:more_devs_do_zero/features/home/controllers/products_by_category_controller.dart';
-import 'package:more_devs_do_zero/features/home/pages/products_by_category_page.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
+import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:more_devs_do_zero/routes.dart';
+import 'package:more_devs_do_zero/shared/mocks/mock_auth.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MockAuth.init();
   runApp(const MyApp());
 }
 
@@ -46,8 +49,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           routes: AppRoutes.routes,
-          // initialRoute: HomePage.route,
-          initialRoute: ProductsByCategoryPage.route,
+          initialRoute: LoginPage.route,
         );
       },
     );

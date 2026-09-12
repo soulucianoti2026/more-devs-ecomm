@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
-import 'package:more_devs_do_zero/shared/mocks.dart';
+import 'package:more_devs_do_zero/shared/mocks/mocks.dart';
 
 enum ProductsByCategoryViewState { loading, success, error }
 

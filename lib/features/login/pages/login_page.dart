@@ -11,10 +11,24 @@ import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_text_field.dart';
 import 'package:provider/provider.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   static const String route = '/login';
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  late LoginController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = context.read<LoginController>();
+    _controller.init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +51,15 @@ class LoginPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            SizedBox(height: 32),
-
+                            const SizedBox(height: 32),
                             Image.asset('assets/images/logo.png', height: 120),
-
                             Center(
                               child: Text(
                                 '+DevsEcomm',
                                 style: AppTextStyle.title,
                               ),
                             ),
-                            SizedBox(height: 48),
+                            const SizedBox(height: 48),
                             AppTextField(
                               controller: controller.emailController,
                               validator: (value) {
@@ -55,7 +67,7 @@ class LoginPage extends StatelessWidget {
                               },
                               hintText: 'email@dominio.com',
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             AppTextField(
                               controller: controller.senhaController,
                               validator: (value) {
@@ -64,7 +76,6 @@ class LoginPage extends StatelessWidget {
                               hintText: '****************',
                               obscureText: true,
                             ),
-
                             Row(
                               children: [
                                 AppCheckBox(
@@ -72,17 +83,17 @@ class LoginPage extends StatelessWidget {
                                   onChanged: (value) =>
                                       controller.changeActiveCheckBox(),
                                 ),
-                                Text('Lembrar-me'),
+                                const Text('Lembrar-me'),
                               ],
                             ),
                             Align(
-                              alignment: AlignmentGeometry.centerRight,
+                              alignment: Alignment.centerRight,
                               child: TextButton(
-                                onPressed: () => {
+                                onPressed: () {
                                   Navigator.pushNamed(
                                     context,
                                     RecoverPage.route,
-                                  ),
+                                  );
                                 },
                                 child: Text(
                                   'Esqueci minha senha',
@@ -96,50 +107,49 @@ class LoginPage extends StatelessWidget {
                               onPressed: () async {
                                 try {
                                   await controller.handleLogin();
+                                  if (!context.mounted) return;
                                   Navigator.popAndPushNamed(
                                     context,
                                     HomePage.route,
                                   );
                                 } on AuthExeception catch (e) {
+                                  if (!context.mounted) return;
                                   AnimatedSnackBar.material(
                                     e.message,
                                     type: AnimatedSnackBarType.error,
                                     mobileSnackBarPosition:
                                         MobileSnackBarPosition.bottom,
                                   ).show(context);
-                                  //TODO adicionar snack bar
                                 }
                               },
                               type: ButtonType.filled,
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             AppElevatedButton(
                               label: 'Cadastrar',
-                              onPressed: () => {
-                                Navigator.pushNamed(context, SignupPage.route),
+                              onPressed: () {
+                                Navigator.pushNamed(context, SignupPage.route);
                               },
                               type: ButtonType.outlined,
                             ),
-                            SizedBox(height: 48),
-                            //GestureDetector adiciona métodos de interação com usuario ex: onTap
+                            const SizedBox(height: 48),
                             GestureDetector(
                               onTap: () {
                                 // print('CLIQUEI NA LINHA');
                               },
-                              //RichText - Aninhar textos e modificar seu alinhamento
                               child: RichText(
                                 textAlign: TextAlign.center,
                                 text: TextSpan(
                                   children: [
-                                    TextSpan(
+                                    const TextSpan(
                                       text: 'Termos de Serviço ',
                                       style: TextStyle(color: Colors.black),
                                     ),
-                                    TextSpan(
+                                    const TextSpan(
                                       text: 'e ',
                                       style: TextStyle(color: Colors.grey),
                                     ),
-                                    TextSpan(
+                                    const TextSpan(
                                       text: 'Politicas de Privacidade',
                                       style: TextStyle(color: Colors.black),
                                     ),
@@ -147,7 +157,7 @@ class LoginPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 32),
+                            const SizedBox(height: 32),
                           ],
                         ),
                       ),

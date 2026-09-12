@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
 import 'package:more_devs_do_zero/features/home/widgets/banner_item.dart';
-import 'package:more_devs_do_zero/features/home/widgets/smooth_page_indicator.dart';
-import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:more_devs_do_zero/features/home/widgets/categories_section.dart';
-//import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
-import 'package:more_devs_do_zero/shared/widgets/home_appbar.dart';
 import 'package:more_devs_do_zero/features/home/widgets/products_section.dart';
-//import 'package:more_devs_do_zero/shared/mocks.dart';
-//import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
+import 'package:more_devs_do_zero/features/home/widgets/smooth_page_indicator.dart';
+import 'package:more_devs_do_zero/shared/widgets/home_appbar.dart';
 import 'package:provider/provider.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,12 +16,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final int _currentPage = 0; // Controla qual bolinha destacar
   final PageController _pageController = PageController();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<HomeController>()
@@ -37,7 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<BannerItem> bannerItems = [
+    final List<BannerItem> bannerItems = [
       const BannerItem(
         title: 'Promoção de Rabanetes',
         urlImage: 'assets/images/rabanete.jpg',
@@ -53,7 +46,6 @@ class _HomePageState extends State<HomePage> {
     ];
     return Scaffold(
       appBar: HomeAppBar(),
-
       body: Consumer<HomeController>(
         builder: (context, homeController, child) {
           return SingleChildScrollView(
@@ -66,31 +58,20 @@ class _HomePageState extends State<HomePage> {
                     children: [for (var banner in bannerItems) banner],
                   ),
                 ),
-                SizedBox(height: 8),
-
-                smoothPageIndicator(
+                const SizedBox(height: 8),
+                SmoothPageIndicatorWidget(
                   pageController: _pageController,
                   bannerItems: bannerItems,
                 ),
                 CategoriesSection(
                   categories: homeController.categories,
                   state: homeController.categoriesViewState,
-                ), //
-
-                SizedBox(height: 4), // Espaçamento entre categorias e produtos
+                ),
+                const SizedBox(height: 4),
                 ProductsSection(
                   products: homeController.products,
                   state: homeController.productsViewState,
                 ),
-
-                // AppElevatedButton(
-                //   label: 'asdasd',
-                //   type: ButtonType.filled,
-                //   onPressed: () {
-                //     homeController
-                //       ..getCategories()
-                //       ..getProducts();
-                //},
               ],
             ),
           );

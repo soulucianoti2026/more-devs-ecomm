@@ -3,6 +3,7 @@ import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
 import 'package:more_devs_do_zero/features/home/pages/products_by_category_page.dart';
 import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
 import 'package:more_devs_do_zero/features/recover/pages/recover_page.dart';
+import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_page.dart';
 import 'package:more_devs_do_zero/features/signup/pages/signup_page.dart';
 
 class AppRoutes {
@@ -11,6 +12,7 @@ class AppRoutes {
     SignupPage.route: (context) => const SignupPage(),
     RecoverPage.route: (context) => const RecoverPage(),
     HomePage.route: (context) => const HomePage(),
+    ShoppingCartPage.route: (context) => const ShoppingCartPage(),
     ProductsByCategoryPage.route: (context) {
       final categoryName =
           ModalRoute.of(context)?.settings.arguments as String? ?? 'Frutas';

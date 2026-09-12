@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/shared/mocks/mock_auth.dart';
 
 class SignupController {
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -32,11 +33,26 @@ class SignupController {
     isActiveCheckBox = !isActiveCheckBox;
     if (isActiveCheckBox) {
       checkBoxError = false;
+      if (validateEmail(emailController.text) == null &&
+          validateNome(nomeController.text) == null &&
+          validateSenha(senhaController.text) == null &&
+          validateConfirmarSenha(confirmarSenhaController.text) == null) {
+        saveToMockAuth();
+      }
     }
   }
 
+  void saveToMockAuth() {
+    MockAuth.registerUser(
+      nome: nomeController.text,
+      email: emailController.text,
+      senha: senhaController.text,
+    );
+  }
+
   Future<void> signUp() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
+    saveToMockAuth();
   }
 
   String? validateEmail(String? value) {

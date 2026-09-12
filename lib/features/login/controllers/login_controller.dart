@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/login/model/user.dart';
 import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
+import 'package:more_devs_do_zero/shared/mocks/mock_auth.dart';
 
 class LoginController extends ChangeNotifier {
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -29,6 +30,18 @@ class LoginController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> init() async {
+    await Future.microtask(() {
+      final users = MockAuth.users;
+      if (users.isNotEmpty) {
+        final lastUser = users.last;
+        emailController.text = lastUser.email;
+        isActiveCheckBox = true;
+        notifyListeners();
+      }
+    });
+  }
+
   Future<void> handleLogin() async {
     if (!key.currentState!.validate()) {
       throw ErrorDescription('Validacao_incorreta');
@@ -37,25 +50,38 @@ class LoginController extends ChangeNotifier {
     changeIsLoading(true);
     try {
       await login();
-      emailController.clear();
-      senhaController.clear();
     } finally {
       changeIsLoading(false);
     }
   }
 
   Future<void> login() async {
-    //Simula chamada da API
     await Future.delayed(const Duration(seconds: 2));
-    if (emailController.text.trim() != 'vitor6890@gmail.com' ||
-        senhaController.text.trim() != '123456') {
+
+    final email = emailController.text.trim();
+    final senha = senhaController.text.trim();
+
+    if (!MockAuth.authenticate(email: email, senha: senha)) {
       throw AuthExeception('Email ou senha incorretos.');
     }
-    user = User(nome: 'Vitor', email: emailController.text);
+
+    final registeredUser = MockAuth.getUser(email);
+    user = registeredUser ?? User(nome: 'Usuário', email: email);
+
+    if (isActiveCheckBox) {
+      MockAuth.registerUser(
+        nome: user?.nome ?? 'Usuário',
+        email: email,
+        senha: senha,
+      );
+    }
+
+    emailController.clear();
+    senhaController.clear();
   }
 
   String? validateEmail(String? value) {
-    if (_emailRegex.hasMatch(emailController.text)) {
+    if (_emailRegex.hasMatch(emailController.text.trim())) {
       return null;
     }
     return 'E-mail inválido';
@@ -67,6 +93,4 @@ class LoginController extends ChangeNotifier {
     }
     return 'Senha inválida';
   }
-
-  //throw ErrorDescription('validacao_incorreta');
 }
