@@ -36,11 +36,11 @@ class _HomePageState extends State<HomePage> {
         urlImage: 'assets/images/rabanete.jpg',
       ),
       const BannerItem(
-        title: 'Promoção de Cenouras',
+        title: 'Promoção de Acerolas',
         urlImage: 'assets/images/rabanete.jpg',
       ),
       const BannerItem(
-        title: 'Promoção de Beterrabas',
+        title: 'Promoção de Batata Pringles',
         urlImage: 'assets/images/rabanete.jpg',
       ),
     ];
