@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_page.dart';
-import 'package:provider/provider.dart';
-import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
+import 'package:more_devs_do_zero/shared/widgets/cart_icon_button.dart';
+import 'package:provider/provider.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({super.key});
@@ -20,11 +21,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: [
-        IconButton(
+        CartIconButton(
           onPressed: () {
             Navigator.pushNamed(context, ShoppingCartPage.route);
           },
-          icon: const Icon(Icons.shopping_cart_outlined),
         ),
         IconButton(
           onPressed: () {

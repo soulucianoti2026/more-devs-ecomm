@@ -27,9 +27,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       body: Consumer<ShoppingCartController>(
         builder: (context, controller, child) {
           if (controller.cartItems.isEmpty) {
-            return const Center(
-              child: Text('Seu carrinho está vazio.'),
-            );
+            return const Center(child: Text('Seu carrinho está vazio.'));
           }
 
           return ListView.separated(
@@ -42,6 +40,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
               final price = (item['price'] as num).toDouble();
               final quantity = item['quantity'] as int;
               final imageUrl = item['imageUrl'] as String;
+              final isAssetImage = imageUrl.startsWith('assets/');
 
               return Card(
                 child: Padding(
@@ -50,21 +49,39 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          imageUrl,
-                          width: 72,
-                          height: 72,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 72,
-                              height: 72,
-                              color: Colors.grey[200],
-                              child:
-                                  const Icon(Icons.image_not_supported_outlined),
-                            );
-                          },
-                        ),
+                        child: isAssetImage
+                            ? Image.asset(
+                                imageUrl,
+                                width: 72,
+                                height: 72,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 72,
+                                    height: 72,
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.image_not_supported_outlined,
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.network(
+                                imageUrl,
+                                width: 72,
+                                height: 72,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 72,
+                                    height: 72,
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.image_not_supported_outlined,
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

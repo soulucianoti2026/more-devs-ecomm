@@ -5,6 +5,7 @@ import 'package:more_devs_do_zero/features/home/widgets/product_card.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_page.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_text_field.dart';
+import 'package:more_devs_do_zero/shared/widgets/cart_icon_button.dart';
 import 'package:provider/provider.dart';
 
 class ProductsByCategoryPage extends StatefulWidget {
@@ -45,7 +46,7 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
           style: AppTextStyle.titleProductByCategory,
         ),
         actions: [
-          IconButton(
+          CartIconButton(
             onPressed: () {
               Navigator.push(
                 context,
@@ -54,7 +55,6 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
                 ),
               );
             },
-            icon: const Icon(Icons.shopping_cart_outlined),
           ),
         ],
       ),

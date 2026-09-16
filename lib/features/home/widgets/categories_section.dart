@@ -56,15 +56,20 @@ class CategoriesSection extends StatelessWidget {
           SizedBox(
             height:
                 120, // Ajustado ligeiramente para acomodar o texto sem estourar o layout
-            child: Skeletonizer(
-              enabled: state == CategoriesViewState.loading,
-              child: ListView.builder(
-                itemCount: getCategoriesList().length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  Category category = getCategoriesList()[index];
-                  return CategoryCard(category: category);
-                },
+            child: Center(
+              child: Skeletonizer(
+                enabled: state == CategoriesViewState.loading,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: getCategoriesList().length,
+                  scrollDirection: Axis.horizontal,
+                  itemExtent: 90,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    Category category = getCategoriesList()[index];
+                    return Center(child: CategoryCard(category: category));
+                  },
+                ),
               ),
             ),
           ),

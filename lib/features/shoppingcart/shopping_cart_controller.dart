@@ -6,6 +6,26 @@ import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 class ShoppingCartController extends ChangeNotifier {
   final List<Map<String, dynamic>> cartItems = [];
 
+  int get totalItems {
+    return cartItems.fold<int>(
+      0,
+      (sum, item) => sum + ((item['quantity'] as int?) ?? 0),
+    );
+  }
+
+  int getProductQuantity(String productName) {
+    final item = cartItems.firstWhere(
+      (element) => element['name'] == productName,
+      orElse: () => {},
+    );
+
+    if (item.isEmpty) {
+      return 0;
+    }
+
+    return (item['quantity'] as int?) ?? 0;
+  }
+
   void addToCart(Products product) {
     final item = {
       'brand': product.brand,
@@ -25,6 +45,26 @@ class ShoppingCartController extends ChangeNotifier {
       cartItems[existingIndex]['quantity'] = currentQuantity + 1;
     } else {
       cartItems.add(item);
+    }
+
+    notifyListeners();
+  }
+
+  void decrementFromCart(String productName) {
+    final existingIndex = cartItems.indexWhere(
+      (element) => element['name'] == productName,
+    );
+
+    if (existingIndex < 0) {
+      return;
+    }
+
+    final currentQuantity = cartItems[existingIndex]['quantity'] as int;
+
+    if (currentQuantity <= 1) {
+      cartItems.removeAt(existingIndex);
+    } else {
+      cartItems[existingIndex]['quantity'] = currentQuantity - 1;
     }
 
     notifyListeners();

@@ -10,31 +10,53 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(10),
+    final isAssetImage = category.imageUrl.startsWith('assets/');
 
-      //height: 50,
-      //width: 50,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/products-by-category',
-            arguments: category.name,
-          );
-        },
-        child: Column(
-          children: [
-            Skeleton.replace(
-              replacement: Bone(
-                height: 40,
-                width: 40,
-                borderRadius: BorderRadius.circular(30),
+    return Align(
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: 76,
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/products-by-category',
+              arguments: category.name,
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Skeleton.replace(
+                replacement: Bone(
+                  height: 40,
+                  width: 40,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: ClipOval(
+                  child: isAssetImage
+                      ? Image.asset(
+                          category.imageUrl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          category.imageUrl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                ),
               ),
-              child: Image.network(category.imageUrl),
-            ),
-            Text(category.name, style: AppTextStyle.smallGrey),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                category.name,
+                style: AppTextStyle.smallGrey,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

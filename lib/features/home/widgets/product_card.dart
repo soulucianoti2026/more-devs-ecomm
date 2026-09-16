@@ -10,6 +10,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAssetImage = product.imageUrl.startsWith('assets/');
+
     return GestureDetector(
       onTap: () => showProductDetailModal(context, product),
       child: Padding(
@@ -22,7 +24,9 @@ class ProductCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 image: DecorationImage(
-                  image: NetworkImage(product.imageUrl),
+                  image: isAssetImage
+                      ? AssetImage(product.imageUrl)
+                      : NetworkImage(product.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),

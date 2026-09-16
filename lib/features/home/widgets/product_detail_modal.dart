@@ -60,16 +60,36 @@ class _ProductDetailModal extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     child: AspectRatio(
                       aspectRatio: 1.8,
-                      child: Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const ColoredBox(
-                            color: Color(0xffeeeeee),
-                            child: Icon(Icons.image_not_supported_outlined),
-                          );
-                        },
-                      ),
+                      child: (() {
+                        final isAssetImage = product.imageUrl.startsWith(
+                          'assets/',
+                        );
+                        return isAssetImage
+                            ? Image.asset(
+                                product.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const ColoredBox(
+                                    color: Color(0xffeeeeee),
+                                    child: Icon(
+                                      Icons.image_not_supported_outlined,
+                                    ),
+                                  );
+                                },
+                              )
+                            : Image.network(
+                                product.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const ColoredBox(
+                                    color: Color(0xffeeeeee),
+                                    child: Icon(
+                                      Icons.image_not_supported_outlined,
+                                    ),
+                                  );
+                                },
+                              );
+                      })(),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -106,32 +126,92 @@ class _ProductDetailModal extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<ShoppingCartController>().addToCart(
-                          product,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '${product.name} adicionado ao carrinho',
-                            ),
+                  Consumer<ShoppingCartController>(
+                    builder: (context, cartController, child) {
+                      final quantity = cartController.getProductQuantity(
+                        product.name,
+                      );
+
+                      if (quantity > 0) {
+                        return Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () {
+                                    cartController.decrementFromCart(product.name);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                  ),
+                                  child: const Icon(Icons.remove),
+                                ),
+                              ),
+                              Container(
+                                width: 64,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  quantity.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () {
+                                    cartController.addToCart(product);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                  ),
+                                  child: const Icon(Icons.add),
+                                ),
+                              ),
+                            ],
                           ),
                         );
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      }
+
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.read<ShoppingCartController>().addToCart(
+                              product,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${product.name} adicionado ao carrinho',
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('Adicionar no carrinho'),
                         ),
-                      ),
-                      child: const Text('Adicionar no carrinho'),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),

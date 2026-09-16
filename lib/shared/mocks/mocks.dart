@@ -1,13 +1,19 @@
 final List<Map<String, dynamic>> categoriesJson = [
-  {'name': 'Frutas', 'imageUrl': 'https://i.postimg.cc/SNX7hc6F/Image.png'},
+  {
+    'name': 'Frutas',
+    'imageUrl':
+        'assets/images/fruitcirclecategory.png', // Substitua pelo nome real do seu arquivo
+  },
   {
     'name': 'Verduras',
-    'imageUrl': 'https://i.postimg.cc/8PFBSLh2/Image-(1).png',
+    'imageUrl':
+        'assets/images/vegetablescirclecategory.png', // Substitua pelo nome real do seu arquivo
   },
-  {'name': 'Padaria', 'imageUrl': 'https://i.postimg.cc/xTky2LvV/Image-1.png'},
+  {'name': 'Padaria', 'imageUrl': 'assets/images/breadcirclecategory.png'},
   {
     'name': 'Importados',
-    'imageUrl': 'https://i.postimg.cc/Yq4fHQ6w/Image-2.png',
+    'imageUrl':
+        'assets/images/importscirclecategory.png', // Substitua pelo nome real do seu arquivo
   },
 ];
 
@@ -18,21 +24,21 @@ final List<Map<String, dynamic>> productsJson = [
   {
     'brand': 'Akatsu',
     'name': 'Acerola',
-    'imageUrl': 'https://i.postimg.cc/BQMWr9B8/Image.png',
+    'imageUrl': 'assets/images/acerolaproduct.png',
     'price': 7.99,
     'category': 'Frutas',
   },
   {
     'brand': 'Natural da Terra',
     'name': 'Maçã',
-    'imageUrl': 'https://i.postimg.cc/BQMWr9B8/Image.png',
+    'imageUrl': 'assets/images/macaproduct.png',
     'price': 8.49,
     'category': 'Frutas',
   },
   {
     'brand': 'Natural da Terra',
     'name': 'Banana',
-    'imageUrl': 'https://i.postimg.cc/BQMWr9B8/Image.png',
+    'imageUrl': 'assets/images/bananaproduct.png',
     'price': 6.99,
     'category': 'Frutas',
   },
@@ -43,21 +49,21 @@ final List<Map<String, dynamic>> productsJson = [
   {
     'brand': 'Natural da Terra',
     'name': 'Rabanete',
-    'imageUrl': 'https://i.postimg.cc/8Pt82Qmf/Image-1.png',
+    'imageUrl': 'assets/images/rabaneteproduct.png',
     'price': 10.99,
     'category': 'Verduras',
   },
   {
     'brand': 'Natural da Terra',
     'name': 'Cogumelo',
-    'imageUrl': 'https://i.postimg.cc/RVP8P1vw/Image-2.png',
+    'imageUrl': 'assets/images/cogumeloproduct.png',
     'price': 12.19,
     'category': 'Verduras',
   },
   {
     'brand': 'Natural da Terra',
     'name': 'Alface',
-    'imageUrl': 'https://i.postimg.cc/8Pt82Qmf/Image-1.png',
+    'imageUrl': '/assets/images/alfaceproduct.png',
     'price': 5.49,
     'category': 'Verduras',
   },
@@ -68,21 +74,21 @@ final List<Map<String, dynamic>> productsJson = [
   {
     'brand': 'Padaria do Bairro',
     'name': 'Pão Francês',
-    'imageUrl': 'https://i.postimg.cc/xTky2LvV/Image-1.png',
+    'imageUrl': '/assets/images/paoproduct.png',
     'price': 9.99,
     'category': 'Padaria',
   },
   {
     'brand': 'Padaria do Bairro',
     'name': 'Pão de Forma',
-    'imageUrl': 'https://i.postimg.cc/xTky2LvV/Image-1.png',
+    'imageUrl': '/assets/images/paoformaproduct.png',
     'price': 12.49,
     'category': 'Padaria',
   },
   {
     'brand': 'Padaria do Bairro',
     'name': 'Croissant',
-    'imageUrl': 'https://i.postimg.cc/xTky2LvV/Image-1.png',
+    'imageUrl': '/assets/images/croissantproduct.png',
     'price': 8.99,
     'category': 'Padaria',
   },
@@ -93,21 +99,21 @@ final List<Map<String, dynamic>> productsJson = [
   {
     'brand': 'Ferrero',
     'name': 'Nutella',
-    'imageUrl': 'https://i.postimg.cc/Yq4fHQ6w/Image-2.png',
+    'imageUrl': '',
     'price': 29.99,
     'category': 'Importados',
   },
   {
     'brand': 'Lindt',
     'name': 'Chocolate Lindt',
-    'imageUrl': 'https://i.postimg.cc/Yq4fHQ6w/Image-2.png',
+    'imageUrl': '',
     'price': 24.99,
     'category': 'Importados',
   },
   {
     'brand': 'Pringles',
     'name': 'Batata Pringles',
-    'imageUrl': 'https://i.postimg.cc/Yq4fHQ6w/Image-2.png',
+    'imageUrl': '',
     'price': 18.99,
     'category': 'Importados',
   },
