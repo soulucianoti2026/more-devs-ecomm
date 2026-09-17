@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
+import 'package:more_devs_do_zero/features/home/widgets/quantity_selector.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -133,55 +134,24 @@ class _ProductDetailModal extends StatelessWidget {
                       );
 
                       if (quantity > 0) {
-                        return Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () {
-                                    cartController.decrementFromCart(product.name);
-                                  },
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.black,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
-                                    ),
-                                  ),
-                                  child: const Icon(Icons.remove),
-                                ),
-                              ),
-                              Container(
-                                width: 64,
-                                alignment: Alignment.center,
-                                child: Text(
-                                  quantity.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () {
-                                    cartController.addToCart(product);
-                                  },
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.black,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
-                                    ),
-                                  ),
-                                  child: const Icon(Icons.add),
-                                ),
-                              ),
-                            ],
-                          ),
+                        final subtotal = cartController.getProductSubtotal(
+                          product.name,
+                        );
+
+                        return QuantitySelector(
+                          product: product,
+                          quantity: quantity,
+                          subtotal: subtotal,
+                          increment: () {
+                            cartController.addToCart(product);
+                          },
+                          decrement: () {
+                            //TODO verificar se a quantity é maior que 1 antes de decrementar
+                            cartController.decrementFromCart(product.name);
+
+                            //TODO caso a quantity seja 1, mostrar modal de confirmação
+                            //TODO caso confirmado, tirar o item do carrinho
+                          },
                         );
                       }
 

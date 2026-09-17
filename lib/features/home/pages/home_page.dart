@@ -37,11 +37,11 @@ class _HomePageState extends State<HomePage> {
       ),
       const BannerItem(
         title: 'Promoção de Acerolas',
-        urlImage: 'assets/images/rabanete.jpg',
+        urlImage: 'assets/images/acerola2.jpg',
       ),
       const BannerItem(
         title: 'Promoção de Batata Pringles',
-        urlImage: 'assets/images/rabanete.jpg',
+        urlImage: 'assets/images/pringles3.jpg',
       ),
     ];
     return Scaffold(

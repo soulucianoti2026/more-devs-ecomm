@@ -57,7 +57,7 @@ final List<Map<String, dynamic>> productsJson = [
     'brand': 'Natural da Terra',
     'name': 'Cogumelo',
     'imageUrl': 'assets/images/cogumeloproduct.png',
-    'price': 12.19,
+    'price': 12.19222222222222222,
     'category': 'Verduras',
   },
   {

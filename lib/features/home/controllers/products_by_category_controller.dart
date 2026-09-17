@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/shared/mocks/mocks.dart';
 
+//TODO logica de confirmar para excluir o produto do carrinho, caso o usuario queira diminuir a quantidade do produto para 0.
 enum ProductsByCategoryViewState { loading, success, error }
 
 // class LoginController extends ChangeNotifier {
@@ -12,8 +13,10 @@ enum ProductsByCategoryViewState { loading, success, error }
 //   final GlobalKey<FormState> key = GlobalKey<FormState>();
 
 class ProductsByCategoryController extends ChangeNotifier {
+  List<Products> _allProductsByCategory = [];
   List<Products> categoryProducts = [];
 
+  String currentCategory = '';
   String query = '';
 
   ProductsByCategoryViewState state = ProductsByCategoryViewState.loading;
@@ -24,38 +27,52 @@ class ProductsByCategoryController extends ChangeNotifier {
   }
 
   Future<void> getProductsByCategory(String category) async {
+    currentCategory = category;
+    query = '';
     changeState(ProductsByCategoryViewState.loading);
-    await Future.delayed(const Duration(seconds: 3)); // simula a API
+    await Future.delayed(const Duration(milliseconds: 300));
 
     try {
-      categoryProducts = productsJson
-          .map((item) => Products.fromJson(item)) // desserializa
+      _allProductsByCategory = productsJson
+          .map((item) => Products.fromJson(item))
           .where((product) => product.category == category)
           .toList();
 
+      categoryProducts = List.from(_allProductsByCategory);
       changeState(ProductsByCategoryViewState.success);
     } catch (e) {
       changeState(ProductsByCategoryViewState.error);
     }
   }
 
-  Future<void> searchProducts(String query) async {
-    changeState(ProductsByCategoryViewState.loading);
-    await Future.delayed(const Duration(seconds: 1)); // simula a API
+  void searchProducts(String input) {
+    final normalizedQuery = input.trim();
+    query = normalizedQuery;
+
+    if (currentCategory.isEmpty) {
+      return;
+    }
 
     try {
-      categoryProducts = productsJson
-          .map((item) => Products.fromJson(item)) // desserializa
-          .where(
-            (product) =>
-                product.name.toLowerCase().contains(query.toLowerCase()) ||
-                product.brand.toLowerCase().contains(query.toLowerCase()),
-          )
-          .toList();
+      if (normalizedQuery.isEmpty) {
+        categoryProducts = List.from(_allProductsByCategory);
+        notifyListeners();
+        return;
+      }
 
-      changeState(ProductsByCategoryViewState.success);
+      final regex = RegExp(
+        RegExp.escape(normalizedQuery),
+        caseSensitive: false,
+      );
+
+      categoryProducts = _allProductsByCategory.where((product) {
+        final searchValue = '${product.name} ${product.brand}';
+        return regex.hasMatch(searchValue);
+      }).toList();
+
+      notifyListeners();
     } catch (e) {
-      changeState(ProductsByCategoryViewState.error);
+      // silenciosamente trata o erro
     }
   }
 

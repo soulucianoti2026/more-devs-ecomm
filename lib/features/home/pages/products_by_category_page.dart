@@ -64,6 +64,21 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (controller.categoryProducts.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  controller.query.isEmpty
+                      ? 'Nenhum produto encontrado nesta categoria'
+                      : 'Nenhum produto encontrado para "${controller.query}"',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            );
+          }
+
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
