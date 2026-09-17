@@ -22,6 +22,8 @@ class _SignupPageState extends State<SignupPage> {
   final GlobalKey<FormState> key = GlobalKey<FormState>();
 
   Future<void> _handleSignup() async {
+    if (signupController.isLoading) return;
+
     final isFormValid = key.currentState!.validate();
 
     if (!signupController.validateCheckBox()) {
@@ -38,24 +40,21 @@ class _SignupPageState extends State<SignupPage> {
 
       if (!mounted) return;
 
-      setState(() {
-        signupController.isLoading = false;
-      });
-
       AnimatedSnackBar.material(
         'Conta criada com sucesso!',
         type: AnimatedSnackBarType.success,
         mobileSnackBarPosition: MobileSnackBarPosition.bottom,
       ).show(context);
 
-      await Future.delayed(const Duration(milliseconds: 600));
-
-      if (!mounted) return;
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        LoginPage.route,
-        (route) => false,
-      );
+      final navigator = Navigator.of(context);
+      var foundLogin = false;
+      navigator.popUntil((route) {
+        foundLogin = route.settings.name == LoginPage.route;
+        return foundLogin || route.isFirst;
+      });
+      if (!foundLogin) {
+        navigator.pushReplacementNamed(LoginPage.route);
+      }
     }
   }
 
@@ -64,7 +63,7 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Cadastro'), centerTitle: true),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: key,
@@ -123,7 +122,7 @@ class _SignupPageState extends State<SignupPage> {
                     text: requiremnt.keys.first,
                   ),
 
-                Spacer(),
+                SizedBox(height: 24),
                 Row(
                   children: [
                     AppCheckBox(
@@ -147,7 +146,7 @@ class _SignupPageState extends State<SignupPage> {
                             children: [
                               TextSpan(
                                 text:
-                                    'Ao clicar em continuar, você concorda com os nossos',
+                                    'Ao clicar em cadastrar, você concorda com os nossos ',
                               ),
                               TextSpan(
                                 text: 'Termos de Serviço ',
@@ -167,7 +166,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 SizedBox(height: 16),
                 AppElevatedButton(
-                  label: 'Continuar',
+                  label: 'Cadastrar',
                   isLoading: signupController.isLoading,
                   onPressed: _handleSignup,
                   type: ButtonType.filled,

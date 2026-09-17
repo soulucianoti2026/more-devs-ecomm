@@ -33,12 +33,6 @@ class SignupController {
     isActiveCheckBox = !isActiveCheckBox;
     if (isActiveCheckBox) {
       checkBoxError = false;
-      if (validateEmail(emailController.text) == null &&
-          validateNome(nomeController.text) == null &&
-          validateSenha(senhaController.text) == null &&
-          validateConfirmarSenha(confirmarSenhaController.text) == null) {
-        saveToMockAuth();
-      }
     }
   }
 

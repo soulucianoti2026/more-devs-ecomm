@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/widgets/quantity_selector.dart';
+import 'package:more_devs_do_zero/features/shoppingcart/confirm_product_removal.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -123,19 +124,19 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                                     controller.addToCart(item);
                                   },
                                   decrement: () {
-                                    //TODO verificar se a quantity é maior que 1 antes de decrementar
                                     controller.decrementFromCart(name);
-
-                                    //TODO caso a quantity seja 1, mostrar modal de confirmação
-                                    //TODO caso confirmado, tirar o item do carrinho
                                   },
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
-                            onPressed: () {
-                              //TODO antes de deletes, pedir confirmação do usuario
+                            onPressed: () async {
+                              final confirmed = await confirmProductRemoval(
+                                context,
+                                name,
+                              );
+                              if (!context.mounted || !confirmed) return;
                               controller.removeFromCart(name);
                             },
                             icon: const Icon(Icons.delete_outline),

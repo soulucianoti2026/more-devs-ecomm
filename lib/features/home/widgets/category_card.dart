@@ -14,8 +14,8 @@ class CategoryCard extends StatelessWidget {
 
     return Align(
       alignment: Alignment.center,
-      child: SizedBox(
-        width: 76,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 76),
         child: GestureDetector(
           onTap: () {
             Navigator.pushNamed(
@@ -54,6 +54,7 @@ class CategoryCard extends StatelessWidget {
                 category.name,
                 style: AppTextStyle.smallGrey,
                 textAlign: TextAlign.center,
+                softWrap: false,
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
+import 'package:more_devs_do_zero/features/shoppingcart/confirm_product_removal.dart';
 
 class QuantitySelector extends StatelessWidget {
   const QuantitySelector({
@@ -32,10 +33,18 @@ class QuantitySelector extends StatelessWidget {
             children: [
               Expanded(
                 child: TextButton(
-                  onPressed: () {
-                    decrement();
-                    // cartController.decrementFromCart(product.name);
-                  },
+                  onPressed: quantity <= 0
+                      ? null
+                      : () async {
+                          if (quantity == 1) {
+                            final confirmed = await confirmProductRemoval(
+                              context,
+                              product.name,
+                            );
+                            if (!context.mounted || !confirmed) return;
+                          }
+                          decrement();
+                        },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black,
                     shape: const RoundedRectangleBorder(

@@ -146,11 +146,7 @@ class _ProductDetailModal extends StatelessWidget {
                             cartController.addToCart(product);
                           },
                           decrement: () {
-                            //TODO verificar se a quantity é maior que 1 antes de decrementar
                             cartController.decrementFromCart(product.name);
-
-                            //TODO caso a quantity seja 1, mostrar modal de confirmação
-                            //TODO caso confirmado, tirar o item do carrinho
                           },
                         );
                       }
