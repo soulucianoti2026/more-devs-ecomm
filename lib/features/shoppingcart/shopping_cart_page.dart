@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/widgets/quantity_selector.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/confirm_product_removal.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
+import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:provider/provider.dart';
 
 class ShoppingCartPage extends StatefulWidget {
@@ -35,7 +36,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
           return Stack(
             children: [
               ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
                 itemCount: controller.cartItems.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
@@ -151,6 +152,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                 bottom: 0,
                 left: 0,
                 right: 0,
+
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -160,23 +162,37 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                     color: Colors.grey[100],
                     border: Border(top: BorderSide(color: Colors.grey[300]!)),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Total:',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      AppElevatedButton(
+                        label: 'Finalizar Compra',
+                        onPressed: () {
+                          // Implement checkout functionality here
+                        },
+                        type: ButtonType.filled,
                       ),
-                      Text(
-                        'R\$ ${controller.getTotalPrice().toStringAsFixed(2).replaceAll('.', ',')}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      const SizedBox(height: 2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            'R\$ ${controller.getTotalPrice().toStringAsFixed(2).replaceAll('.', ',')}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

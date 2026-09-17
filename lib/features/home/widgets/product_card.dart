@@ -33,7 +33,10 @@ class ProductCard extends StatelessWidget {
             ),
             Text(product.name, style: AppTextStyle.smallGrey),
             Text(product.brand, style: AppTextStyle.smallGrey),
-            Text(product.price.toString(), style: AppTextStyle.smallBlack),
+            Text(
+              'R\$ ${product.price.toStringAsFixed(2).replaceAll('.', ',')}',
+              style: AppTextStyle.smallBlack,
+            ),
           ],
         ),
       ),

@@ -29,27 +29,27 @@ class CategoryCard extends StatelessWidget {
             children: [
               Skeleton.replace(
                 replacement: Bone(
-                  height: 40,
-                  width: 40,
+                  height: 60,
+                  width: 60,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: ClipOval(
                   child: isAssetImage
                       ? Image.asset(
                           category.imageUrl,
-                          width: 40,
-                          height: 40,
+                          width: 60,
+                          height: 60,
                           fit: BoxFit.cover,
                         )
                       : Image.network(
                           category.imageUrl,
-                          width: 40,
-                          height: 40,
+                          width: 60,
+                          height: 60,
                           fit: BoxFit.cover,
                         ),
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
               Text(
                 category.name,
                 style: AppTextStyle.smallGrey,

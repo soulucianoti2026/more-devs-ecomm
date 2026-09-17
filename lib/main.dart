@@ -48,6 +48,15 @@ class MyApp extends StatelessWidget {
 
       builder: (context, child) {
         return MaterialApp(
+          builder: (context, child) {
+            return ColoredBox(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: SafeArea(
+                top: false,
+                child: child ?? const SizedBox.shrink(),
+              ),
+            );
+          },
           routes: AppRoutes.routes,
           initialRoute: LoginPage.route,
         );
