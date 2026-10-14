@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:more_devs_do_zero/shared/mocks/mock_auth.dart';
+import 'package:more_devs_do_zero/shared/services/auth_service.dart';
 
 class SignupController {
+  SignupController({AuthService? authService})
+    : _authService = authService ?? AuthService();
+  final AuthService _authService;
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   TextEditingController emailController = TextEditingController();
@@ -36,17 +39,14 @@ class SignupController {
     }
   }
 
-  void saveToMockAuth() {
-    MockAuth.registerUser(
-      nome: nomeController.text,
+  Future<AuthSession> signUp() {
+    return _authService.register(
+      name: nomeController.text,
       email: emailController.text,
-      senha: senhaController.text,
+      password: senhaController.text,
+      confirmPassword: confirmarSenhaController.text,
+      acceptedTerms: isActiveCheckBox,
     );
-  }
-
-  Future<void> signUp() async {
-    await Future.delayed(const Duration(seconds: 2));
-    saveToMockAuth();
   }
 
   String? validateEmail(String? value) {

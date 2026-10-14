@@ -16,6 +16,12 @@ class CategoriesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (state == CategoriesViewState.sucess && categories.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(24),
+        child: Text('Nenhuma categoria disponível.'),
+      );
+    }
     // Mudamos o switch para retornar a estrutura correta baseada no estado
     return switch (state) {
       CategoriesViewState.error => const SizedBox(

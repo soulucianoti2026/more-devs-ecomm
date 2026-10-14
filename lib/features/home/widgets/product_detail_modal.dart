@@ -3,17 +3,71 @@ import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/features/home/widgets/quantity_selector.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:more_devs_do_zero/shared/services/store_service.dart';
+import 'package:more_devs_do_zero/shared/widgets/api_action.dart';
 
 Future<void> showProductDetailModal(
   BuildContext context,
   Products product,
 ) async {
+  if (product.id.isEmpty) return;
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (modalContext) {
-      return _ProductDetailModal(product: product);
+      return _ProductLoader(product: product);
+    },
+  );
+}
+
+class _ProductLoader extends StatefulWidget {
+  const _ProductLoader({required this.product});
+  final Products product;
+  @override
+  State<_ProductLoader> createState() => _ProductLoaderState();
+}
+
+class _ProductLoaderState extends State<_ProductLoader> {
+  late Future<Products> _future;
+  @override
+  void initState() {
+    super.initState();
+    _future = context.read<StoreService>().getProduct(widget.product.id);
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<Products>(
+    future: _future,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const SizedBox(
+          height: 240,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
+      if (snapshot.hasError) {
+        return Material(
+          child: SizedBox(
+            height: 240,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(snapshot.error.toString()),
+                TextButton(
+                  onPressed: () => setState(() {
+                    _future = context.read<StoreService>().getProduct(
+                      widget.product.id,
+                    );
+                  }),
+                  child: const Text('Tentar novamente'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      return _ProductDetailModal(product: snapshot.data!);
     },
   );
 }
@@ -25,11 +79,7 @@ class _ProductDetailModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final description =
-        'A ${product.name.toLowerCase()} e uma fruta tropical conhecida pelo seu '
-        'sabor refrescante, levemente acido e naturalmente adocicado. '
-        'Rica em vitamina C e muito versatil, pode ser consumida in natura, '
-        'utilizada em sucos, vitaminas, sobremesas e diversas receitas.';
+    final description = product.description;
 
     return SafeArea(
       top: false,
@@ -112,12 +162,6 @@ class _ProductDetailModal extends StatelessWidget {
                     style: const TextStyle(fontSize: 13, height: 1.35),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Ideal para quem busca uma opcao saborosa e nutritiva para o '
-                    'dia a dia. Produto selecionado para garantir qualidade, '
-                    'frescor e sabor.',
-                    style: const TextStyle(fontSize: 13, height: 1.35),
-                  ),
                   const SizedBox(height: 8),
                   Text(
                     'R\$ ${product.price.toStringAsFixed(2).replaceAll('.', ',')}',
@@ -130,23 +174,33 @@ class _ProductDetailModal extends StatelessWidget {
                   Consumer<ShoppingCartController>(
                     builder: (context, cartController, child) {
                       final quantity = cartController.getProductQuantity(
-                        product.name,
+                        product.id,
                       );
 
                       if (quantity > 0) {
                         final subtotal = cartController.getProductSubtotal(
-                          product.name,
+                          product.id,
                         );
 
                         return QuantitySelector(
+                          enabled: !cartController.isLoading,
                           product: product,
                           quantity: quantity,
                           subtotal: subtotal,
                           increment: () {
-                            cartController.addToCart(product);
+                            runCartAction(
+                              context,
+                              cartController,
+                              () => cartController.addToCart(product),
+                            );
                           },
                           decrement: () {
-                            cartController.decrementFromCart(product.name);
+                            runCartAction(
+                              context,
+                              cartController,
+                              () =>
+                                  cartController.decrementFromCart(product.id),
+                            );
                           },
                         );
                       }
@@ -155,18 +209,13 @@ class _ProductDetailModal extends StatelessWidget {
                         width: double.infinity,
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: () {
-                            context.read<ShoppingCartController>().addToCart(
-                              product,
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${product.name} adicionado ao carrinho',
+                          onPressed: cartController.isLoading
+                              ? null
+                              : () => runCartAction(
+                                  context,
+                                  cartController,
+                                  () => cartController.addToCart(product),
                                 ),
-                              ),
-                            );
-                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             foregroundColor: Colors.white,

@@ -1,6 +1,10 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
+import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
+import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
+import 'package:more_devs_do_zero/shared/services/auth_service.dart';
+import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
+import 'package:provider/provider.dart';
 import 'package:more_devs_do_zero/features/signup/controllers/signup_controller.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_check_box.dart';
@@ -18,8 +22,25 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  SignupController signupController = SignupController();
+  late final SignupController signupController;
   final GlobalKey<FormState> key = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    signupController = SignupController(
+      authService: context.read<AuthService>(),
+    );
+  }
+
+  @override
+  void dispose() {
+    signupController.nomeController.dispose();
+    signupController.emailController.dispose();
+    signupController.senhaController.dispose();
+    signupController.confirmarSenhaController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleSignup() async {
     if (signupController.isLoading) return;
@@ -36,24 +57,29 @@ class _SignupPageState extends State<SignupPage> {
         signupController.isLoading = true;
       });
 
-      await signupController.signUp();
+      try {
+        final session = await signupController.signUp();
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      AnimatedSnackBar.material(
-        'Conta criada com sucesso!',
-        type: AnimatedSnackBarType.success,
-        mobileSnackBarPosition: MobileSnackBarPosition.bottom,
-      ).show(context);
+        AnimatedSnackBar.material(
+          'Conta criada com sucesso!',
+          type: AnimatedSnackBarType.success,
+          mobileSnackBarPosition: MobileSnackBarPosition.bottom,
+        ).show(context);
 
-      final navigator = Navigator.of(context);
-      var foundLogin = false;
-      navigator.popUntil((route) {
-        foundLogin = route.settings.name == LoginPage.route;
-        return foundLogin || route.isFirst;
-      });
-      if (!foundLogin) {
-        navigator.pushReplacementNamed(LoginPage.route);
+        context.read<LoginController>().acceptSession(session);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(HomePage.route, (_) => false);
+      } on AuthExeception catch (error) {
+        if (!mounted) return;
+        AnimatedSnackBar.material(
+          error.message,
+          type: AnimatedSnackBarType.error,
+        ).show(context);
+      } finally {
+        if (mounted) setState(() => signupController.isLoading = false);
       }
     }
   }

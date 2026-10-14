@@ -16,6 +16,12 @@ class ProductsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (state == ProductsViewState.sucess && products.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(24),
+        child: Text('Nenhum produto disponível.'),
+      );
+    }
     return switch (state) {
       ProductsViewState.error => const SizedBox(
         height: 220,

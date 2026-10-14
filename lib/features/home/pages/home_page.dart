@@ -6,6 +6,9 @@ import 'package:more_devs_do_zero/features/home/widgets/products_section.dart';
 import 'package:more_devs_do_zero/features/home/widgets/smooth_page_indicator.dart';
 import 'package:more_devs_do_zero/shared/widgets/home_appbar.dart';
 import 'package:provider/provider.dart';
+import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
+import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
+import 'package:more_devs_do_zero/shared/services/store_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,10 +25,33 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!mounted) return;
+      context.read<ShoppingCartController>().loadCart();
+      _refreshProfile();
       context.read<HomeController>()
         ..getCategories()
         ..getProducts();
     });
+  }
+
+  Future<void> _refreshProfile() async {
+    try {
+      await context.read<LoginController>().refreshUser(
+        context.read<StoreService>(),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,31 +74,41 @@ class _HomePageState extends State<HomePage> {
       appBar: HomeAppBar(),
       body: Consumer<HomeController>(
         builder: (context, homeController, child) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 156,
-                  child: PageView(
-                    controller: _pageController,
-                    children: [for (var banner in bannerItems) banner],
+          return RefreshIndicator(
+            onRefresh: () async {
+              await Future.wait([
+                homeController.getCategories(),
+                homeController.getProducts(),
+                _refreshProfile(),
+              ]);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 156,
+                    child: PageView(
+                      controller: _pageController,
+                      children: [for (var banner in bannerItems) banner],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                SmoothPageIndicatorWidget(
-                  pageController: _pageController,
-                  bannerItems: bannerItems,
-                ),
-                CategoriesSection(
-                  categories: homeController.categories,
-                  state: homeController.categoriesViewState,
-                ),
-                const SizedBox(height: 4),
-                ProductsSection(
-                  products: homeController.products,
-                  state: homeController.productsViewState,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  SmoothPageIndicatorWidget(
+                    pageController: _pageController,
+                    bannerItems: bannerItems,
+                  ),
+                  CategoriesSection(
+                    categories: homeController.categories,
+                    state: homeController.categoriesViewState,
+                  ),
+                  const SizedBox(height: 4),
+                  ProductsSection(
+                    products: homeController.products,
+                    state: homeController.productsViewState,
+                  ),
+                ],
+              ),
             ),
           );
         },

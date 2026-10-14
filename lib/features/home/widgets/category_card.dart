@@ -17,13 +17,15 @@ class CategoryCard extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 76),
         child: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              '/products-by-category',
-              arguments: category.name,
-            );
-          },
+          onTap: category.id.isEmpty
+              ? null
+              : () {
+                  Navigator.pushNamed(
+                    context,
+                    '/products-by-category',
+                    arguments: category,
+                  );
+                },
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

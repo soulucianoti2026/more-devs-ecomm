@@ -1,83 +1,93 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
-import 'package:more_devs_do_zero/shared/mocks/mocks.dart';
+import 'package:more_devs_do_zero/shared/services/store_service.dart';
 
-//TODO logica de confirmar para excluir o produto do carrinho, caso o usuario queira diminuir a quantidade do produto para 0.
 enum ProductsByCategoryViewState { loading, success, error }
 
-// class LoginController extends ChangeNotifier {
-//   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-//   final int _caracterMinimoSenha = 6;
-//   TextEditingController emailController = TextEditingController();
-//   TextEditingController senhaController = TextEditingController();
-//   final GlobalKey<FormState> key = GlobalKey<FormState>();
-
 class ProductsByCategoryController extends ChangeNotifier {
-  List<Products> _allProductsByCategory = [];
+  ProductsByCategoryController(this.api);
+  final StoreService api;
   List<Products> categoryProducts = [];
-
+  List<String> brands = [];
   String currentCategory = '';
   String query = '';
-
+  String? brand;
+  String? error;
+  int _version = 0;
+  Timer? _debounce;
   ProductsByCategoryViewState state = ProductsByCategoryViewState.loading;
 
-  void changeState(ProductsByCategoryViewState newState) {
-    state = newState;
-    notifyListeners();
-  }
-
-  Future<void> getProductsByCategory(String category) async {
-    currentCategory = category;
+  Future<void> getProductsByCategory(String categoryId) async {
+    _debounce?.cancel();
+    currentCategory = categoryId;
     query = '';
-    changeState(ProductsByCategoryViewState.loading);
-    await Future.delayed(const Duration(milliseconds: 300));
-
+    brand = null;
+    brands = [];
+    final version = ++_version;
+    state = ProductsByCategoryViewState.loading;
+    notifyListeners();
     try {
-      _allProductsByCategory = productsJson
-          .map((item) => Products.fromJson(item))
-          .where((product) => product.category == category)
-          .toList();
-
-      categoryProducts = List.from(_allProductsByCategory);
-      changeState(ProductsByCategoryViewState.success);
+      final results = await Future.wait<Object>([
+        api.getProducts(categoryId: categoryId),
+        api.getBrands(categoryId),
+      ]);
+      if (version != _version) return;
+      categoryProducts = results[0] as List<Products>;
+      brands = results[1] as List<String>;
+      error = null;
+      state = ProductsByCategoryViewState.success;
     } catch (e) {
-      changeState(ProductsByCategoryViewState.error);
+      if (version != _version) return;
+      error = e.toString();
+      state = ProductsByCategoryViewState.error;
     }
+    notifyListeners();
   }
 
   void searchProducts(String input) {
-    final normalizedQuery = input.trim();
-    query = normalizedQuery;
-
-    if (currentCategory.isEmpty) {
-      return;
-    }
-
-    try {
-      if (normalizedQuery.isEmpty) {
-        categoryProducts = List.from(_allProductsByCategory);
-        notifyListeners();
-        return;
-      }
-
-      final regex = RegExp(
-        RegExp.escape(normalizedQuery),
-        caseSensitive: false,
-      );
-
-      categoryProducts = _allProductsByCategory.where((product) {
-        final searchValue = '${product.name} ${product.brand}';
-        return regex.hasMatch(searchValue);
-      }).toList();
-
-      notifyListeners();
-    } catch (e) {
-      // silenciosamente trata o erro
-    }
+    query = input.trim();
+    _debounce?.cancel();
+    final version = ++_version;
+    _debounce = Timer(
+      const Duration(milliseconds: 350),
+      () => _search(version),
+    );
   }
 
-  void search(String query) {
-    query = query;
+  void filterBrand(String? value) {
+    brand = value;
+    _debounce?.cancel();
+    _search(++_version);
+  }
+
+  Future<void> retry() => _search(++_version);
+
+  Future<void> _search(int version) async {
+    state = ProductsByCategoryViewState.loading;
     notifyListeners();
+    try {
+      final products = await api.getProducts(
+        categoryId: currentCategory,
+        search: query,
+        brand: brand,
+      );
+      if (version != _version) return;
+      categoryProducts = products;
+      error = null;
+      state = ProductsByCategoryViewState.success;
+    } catch (e) {
+      if (version != _version) return;
+      error = e.toString();
+      state = ProductsByCategoryViewState.error;
+    }
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    ++_version;
+    _debounce?.cancel();
+    super.dispose();
   }
 }

@@ -4,6 +4,8 @@ import 'package:more_devs_do_zero/features/shoppingcart/confirm_product_removal.
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:more_devs_do_zero/shared/widgets/app_elevated_button.dart';
 import 'package:provider/provider.dart';
+import 'package:more_devs_do_zero/features/orders/orders_page.dart';
+import 'package:more_devs_do_zero/shared/widgets/api_action.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
@@ -16,9 +18,46 @@ class ShoppingCartPage extends StatefulWidget {
 
 class ShoppingCartPageState extends State<ShoppingCartPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<ShoppingCartController>().loadCart();
+    });
+  }
+
+  Future<void> _checkout(ShoppingCartController controller) async {
+    final order = await controller.checkout();
+    if (!mounted) return;
+    if (order == null) {
+      if (controller.error != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(controller.error!)));
+      }
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Pedido criado com sucesso!')));
+    Navigator.pushNamed(context, OrderDetailPage.route, arguments: order['id']);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            tooltip: 'Atualizar carrinho',
+            onPressed: () => context.read<ShoppingCartController>().loadCart(),
+            icon: const Icon(Icons.refresh),
+          ),
+          IconButton(
+            tooltip: 'Meus pedidos',
+            onPressed: () => Navigator.pushNamed(context, OrdersPage.route),
+            icon: const Icon(Icons.receipt_long_outlined),
+          ),
+        ],
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         centerTitle: true,
@@ -29,6 +68,23 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
       ),
       body: Consumer<ShoppingCartController>(
         builder: (context, controller, child) {
+          if (controller.isLoading && controller.cartItems.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (controller.error != null && controller.cartItems.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(controller.error!),
+                  TextButton(
+                    onPressed: controller.loadCart,
+                    child: const Text('Tentar novamente'),
+                  ),
+                ],
+              ),
+            );
+          }
           if (controller.cartItems.isEmpty) {
             return const Center(child: Text('Seu carrinho está vazio.'));
           }
@@ -46,7 +102,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                   final quantity = item.quantity;
                   final imageUrl = item.imageUrl;
                   final isAssetImage = imageUrl.startsWith('assets/');
-                  final subtotal = price * quantity;
+                  final subtotal = item.subtotal;
 
                   return Card(
                     child: Padding(
@@ -118,28 +174,45 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                                   ),
                                 ),
                                 QuantitySelector(
+                                  enabled: !controller.isLoading,
                                   product: item,
                                   quantity: quantity,
                                   subtotal: subtotal,
                                   increment: () {
-                                    controller.addToCart(item);
+                                    runCartAction(
+                                      context,
+                                      controller,
+                                      () => controller.addToCart(item),
+                                    );
                                   },
                                   decrement: () {
-                                    controller.decrementFromCart(name);
+                                    runCartAction(
+                                      context,
+                                      controller,
+                                      () =>
+                                          controller.decrementFromCart(item.id),
+                                    );
                                   },
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
-                            onPressed: () async {
-                              final confirmed = await confirmProductRemoval(
-                                context,
-                                name,
-                              );
-                              if (!context.mounted || !confirmed) return;
-                              controller.removeFromCart(name);
-                            },
+                            onPressed: controller.isLoading
+                                ? null
+                                : () async {
+                                    final confirmed =
+                                        await confirmProductRemoval(
+                                          context,
+                                          name,
+                                        );
+                                    if (!context.mounted || !confirmed) return;
+                                    await runCartAction(
+                                      context,
+                                      controller,
+                                      () => controller.removeFromCart(item.id),
+                                    );
+                                  },
                             icon: const Icon(Icons.delete_outline),
                           ),
                         ],
@@ -168,9 +241,8 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                     children: [
                       AppElevatedButton(
                         label: 'Finalizar Compra',
-                        onPressed: () {
-                          // Implement checkout functionality here
-                        },
+                        isLoading: controller.isLoading,
+                        onPressed: () => _checkout(controller),
                         type: ButtonType.filled,
                       ),
                       const SizedBox(height: 2),

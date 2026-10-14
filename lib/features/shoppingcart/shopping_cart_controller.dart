@@ -1,147 +1,135 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
+import 'package:more_devs_do_zero/shared/services/auth_service.dart';
+import 'package:more_devs_do_zero/shared/services/store_service.dart';
 
 class CartProduct extends Products {
-  int quantity;
-
+  final int quantity;
+  final double subtotal;
   CartProduct({
-    required super.brand,
-    required super.name,
-    required super.imageUrl,
-    required super.price,
-    required super.category,
-    this.quantity = 0,
-  });
+    required Products product,
+    required this.quantity,
+    required this.subtotal,
+  }) : super(
+         id: product.id,
+         categoryId: product.categoryId,
+         description: product.description,
+         brand: product.brand,
+         name: product.name,
+         imageUrl: product.imageUrl,
+         price: product.price,
+         category: product.category,
+       );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'brand': brand,
-      'name': name,
-      'imageUrl': imageUrl,
-      'price': price,
-      'category': category,
-      'quantity': quantity,
-    };
-  }
-
-  factory CartProduct.fromJson(Map<String, dynamic> json) {
-    return CartProduct(
-      brand: json['brand'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      imageUrl: json['imageUrl'] as String? ?? '',
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      category: json['category'] as String? ?? '',
-      quantity: json['quantity'] as int? ?? 1,
-    );
-  }
+  factory CartProduct.fromJson(Map<String, dynamic> json) => CartProduct(
+    product: Products.fromJson(json['product'] as Map<String, dynamic>),
+    quantity: json['quantity'] as int,
+    subtotal: (json['subtotal'] as num).toDouble(),
+  );
 }
 
 class ShoppingCartController extends ChangeNotifier {
-  final List<CartProduct> cartItems = [];
+  ShoppingCartController(this.api) {
+    _session = api.auth.session;
+    api.auth.addListener(_sessionChanged);
+  }
+  final StoreService api;
+  AuthSession? _session;
+  List<CartProduct> cartItems = [];
+  int totalItems = 0;
+  double _total = 0;
+  bool isLoading = false;
+  String? error;
+  int _version = 0;
 
-  int get totalItems {
-    return cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
+  void _sessionChanged() {
+    if (identical(_session, api.auth.session)) return;
+    _session = api.auth.session;
+    ++_version;
+    cartItems = [];
+    totalItems = 0;
+    _total = 0;
+    error = null;
+    isLoading = false;
+    notifyListeners();
   }
 
-  double getTotalPrice() {
-    return cartItems.fold<double>(0, (sum, item) {
-      final price = item.price;
-      final quantity = item.quantity;
-      return sum + (price * quantity);
-    });
+  double getTotalPrice() => _total;
+  double getProductSubtotal(String id) =>
+      cartItems.where((e) => e.id == id).firstOrNull?.subtotal ?? 0;
+  int getProductQuantity(String id) =>
+      cartItems.where((e) => e.id == id).firstOrNull?.quantity ?? 0;
+
+  void _apply(Map<String, dynamic> json) {
+    final items = (json['items'] as List)
+        .map((e) => CartProduct.fromJson(e as Map<String, dynamic>))
+        .toList();
+    final count = json['itemCount'] as int;
+    final total = (json['total'] as num).toDouble();
+    cartItems = items;
+    totalItems = count;
+    _total = total;
   }
 
-  double getProductSubtotal(String productName) {
-    final item = cartItems.firstWhere(
-      (element) => element.name == productName,
-      orElse: () => CartProduct(
-        brand: '',
-        name: '',
-        imageUrl: '',
-        price: 0,
-        category: '',
-      ),
-    );
-
-    final price = item.price;
-    final quantity = item.quantity;
-
-    return price.toDouble() * quantity;
-  }
-
-  int getProductQuantity(String productName) {
-    final item = cartItems.firstWhere(
-      (element) => element.name == productName,
-      orElse: () => CartProduct(
-        brand: '',
-        name: '',
-        imageUrl: '',
-        price: 0,
-        category: '',
-      ),
-    );
-
-    return (item.quantity);
-  }
-
-  void addToCart(Products product) {
-    final item = CartProduct(
-      brand: product.brand,
-      name: product.name,
-      imageUrl: product.imageUrl,
-      price: product.price,
-      category: product.category,
-      quantity: 1,
-    );
-
-    final existingIndex = cartItems.indexWhere(
-      (element) => element.name == product.name,
-    );
-
-    if (existingIndex >= 0) {
-      cartItems[existingIndex] = cartItems[existingIndex];
-      cartItems[existingIndex].quantity += 1;
-    } else {
-      cartItems.add(item);
+  Future<bool> _run(Future<Map<String, dynamic>> Function() action) async {
+    if (isLoading) return false;
+    final version = _version;
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final result = await action();
+      if (version != _version) return false;
+      _apply(result);
+      return true;
+    } catch (e) {
+      if (version == _version) error = e.toString();
+      return false;
+    } finally {
+      if (version == _version) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
-
-    notifyListeners();
   }
 
-  void decrementFromCart(String productName) {
-    final existingIndex = cartItems.indexWhere(
-      (element) => element.name == productName,
-    );
+  Future<bool> loadCart() => _run(api.getCart);
+  Future<bool> addToCart(Products product) =>
+      _run(() => api.addItem(product.id));
+  Future<bool> decrementFromCart(String id) => _run(
+    () => api.updateItem(id, (getProductQuantity(id) - 1).clamp(0, 999999)),
+  );
+  Future<bool> removeFromCart(String id) => _run(() => api.removeItem(id));
+  Future<bool> clearCart() => _run(api.clearCart);
 
-    if (existingIndex < 0) {
-      return;
+  Future<Map<String, dynamic>?> checkout() async {
+    if (isLoading || cartItems.isEmpty) return null;
+    final version = _version;
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final order = await api.createOrder();
+      if (version != _version) return null;
+      cartItems = [];
+      totalItems = 0;
+      _total = 0;
+      return order;
+    } catch (e) {
+      if (version == _version) error = e.toString();
+      return null;
+    } finally {
+      if (version == _version) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
-
-    final currentQuantity = cartItems[existingIndex].quantity;
-
-    if (currentQuantity <= 1) {
-      cartItems.removeAt(existingIndex);
-    } else {
-      cartItems[existingIndex] = cartItems[existingIndex];
-      cartItems[existingIndex].quantity -= 1;
-    }
-
-    notifyListeners();
   }
 
-  void removeFromCart(String productName) {
-    cartItems.removeWhere((item) => item.name == productName);
-    notifyListeners();
-  }
-
-  void clearCart() {
-    cartItems.clear();
-    notifyListeners();
-  }
-
-  String toJson() {
-    return jsonEncode(cartItems);
+  @override
+  void dispose() {
+    ++_version;
+    api.auth.removeListener(_sessionChanged);
+    super.dispose();
   }
 }

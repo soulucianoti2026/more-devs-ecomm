@@ -28,6 +28,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         IconButton(
           onPressed: () {
+            context.read<LoginController>().logout();
             Navigator.pushNamedAndRemoveUntil(
               context,
               LoginPage.route,

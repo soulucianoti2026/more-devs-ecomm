@@ -10,6 +10,7 @@ class QuantitySelector extends StatelessWidget {
     required this.subtotal,
     required this.increment,
     required this.decrement,
+    this.enabled = true,
   });
 
   final Products product;
@@ -17,6 +18,7 @@ class QuantitySelector extends StatelessWidget {
   final double subtotal;
   final VoidCallback increment;
   final VoidCallback decrement;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class QuantitySelector extends StatelessWidget {
             children: [
               Expanded(
                 child: TextButton(
-                  onPressed: quantity <= 0
+                  onPressed: !enabled || quantity <= 0
                       ? null
                       : () async {
                           if (quantity == 1) {
@@ -67,10 +69,12 @@ class QuantitySelector extends StatelessWidget {
               ),
               Expanded(
                 child: TextButton(
-                  onPressed: () {
-                    increment();
-                    // cartController.addToCart(product);
-                  },
+                  onPressed: !enabled
+                      ? null
+                      : () {
+                          increment();
+                          // cartController.addToCart(product);
+                        },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.black,
                     shape: const RoundedRectangleBorder(

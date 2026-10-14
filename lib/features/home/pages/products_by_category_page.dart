@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/products_by_category_controller.dart';
-import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
+import 'package:more_devs_do_zero/features/home/models/category_model.dart';
 import 'package:more_devs_do_zero/features/home/widgets/product_card.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_page.dart';
-import 'package:more_devs_do_zero/shared/app_text_style.dart';
-import 'package:more_devs_do_zero/shared/widgets/app_text_field.dart';
 import 'package:more_devs_do_zero/shared/widgets/cart_icon_button.dart';
 import 'package:provider/provider.dart';
 
 class ProductsByCategoryPage extends StatefulWidget {
-  const ProductsByCategoryPage({super.key, required this.categoryName});
-
+  const ProductsByCategoryPage({super.key, required this.category});
+  static const route = '/products-by-category';
+  final Category category;
   @override
   State<ProductsByCategoryPage> createState() => _ProductsByCategoryPageState();
-
-  static const String route = '/products-by-category';
-
-  final String categoryName;
 }
 
 class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
@@ -24,104 +19,99 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductsByCategoryController>().getProductsByCategory(
-        widget.categoryName,
-      );
+      if (mounted) {
+        context.read<ProductsByCategoryController>().getProductsByCategory(
+          widget.category.id,
+        );
+      }
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pushNamed(context, HomePage.route);
-          },
-          icon: const Icon(Icons.arrow_back),
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: Text(widget.category.name),
+      actions: [
+        CartIconButton(
+          onPressed: () => Navigator.pushNamed(context, ShoppingCartPage.route),
         ),
-        centerTitle: true,
-        title: Text(
-          widget.categoryName,
-          style: AppTextStyle.titleProductByCategory,
-        ),
-        actions: [
-          CartIconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ShoppingCartPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Consumer<ProductsByCategoryController>(
-        builder: (context, controller, child) {
-          if (controller.state == ProductsByCategoryViewState.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (controller.categoryProducts.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  controller.query.isEmpty
-                      ? 'Nenhum produto encontrado nesta categoria'
-                      : 'Nenhum produto encontrado para "${controller.query}"',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            );
-          }
-
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AppTextField(
-                        hintText: 'Buscar produtos',
-                        prefixIcon: const Icon(Icons.search),
-                        onChanged: (value) {
-                          context
-                              .read<ProductsByCategoryController>()
-                              .searchProducts(value);
-                        },
+      ],
+    ),
+    body: Consumer<ProductsByCategoryController>(
+      builder: (context, controller, _) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar produtos',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: controller.searchProducts,
+                  ),
+                  DropdownButton<String>(
+                    isExpanded: true,
+                    value: controller.brand ?? '',
+                    items: [
+                      const DropdownMenuItem(
+                        value: '',
+                        child: Text('Todas as marcas'),
                       ),
-                      const SizedBox(height: 16),
+                      ...controller.brands.map(
+                        (brand) =>
+                            DropdownMenuItem(value: brand, child: Text(brand)),
+                      ),
+                    ],
+                    onChanged: controller.filterBrand,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: switch (controller.state) {
+                ProductsByCategoryViewState.loading => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                ProductsByCategoryViewState.error => Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        controller.error ??
+                            'Não foi possível carregar os produtos.',
+                      ),
+                      TextButton(
+                        onPressed: controller.retry,
+                        child: const Text('Tentar novamente'),
+                      ),
                     ],
                   ),
                 ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => ProductCard(
-                      product: controller.categoryProducts[index],
-                    ),
-                    childCount: controller.categoryProducts.length,
-                  ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.68,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+                ProductsByCategoryViewState.success =>
+                  controller.categoryProducts.isEmpty
+                      ? const Center(child: Text('Nenhum produto encontrado.'))
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: controller.categoryProducts.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 12,
+                                childAspectRatio: 0.68,
+                              ),
+                          itemBuilder: (context, index) => ProductCard(
+                            product: controller.categoryProducts[index],
+                          ),
+                        ),
+              },
+            ),
+          ],
+        );
+      },
+    ),
+  );
 }
