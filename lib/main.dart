@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
 import 'package:more_devs_do_zero/features/home/controllers/products_by_category_controller.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/features/login/pages/login_page.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/shopping_cart_controller.dart';
 import 'package:more_devs_do_zero/routes.dart';
+import 'package:more_devs_do_zero/shared/app_analytics.dart';
 import 'package:more_devs_do_zero/shared/services/auth_service.dart';
 import 'package:more_devs_do_zero/shared/services/store_service.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  await AppAnalytics.instance.initialize();
+  final authService = AuthService();
+  await authService.restoreSession();
+  runApp(MyApp(authService: authService));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.authService});
+  final AuthService? authService;
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   @override
@@ -23,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthService()
+          create: (_) => (authService ?? AuthService())
             ..onSessionExpired = () {
               navigatorKey.currentState?.pushNamedAndRemoveUntil(
                 LoginPage.route,
@@ -72,7 +78,9 @@ class MyApp extends StatelessWidget {
             );
           },
           routes: AppRoutes.routes,
-          initialRoute: LoginPage.route,
+          initialRoute: authService?.session == null
+              ? LoginPage.route
+              : HomePage.route,
         );
       },
     );

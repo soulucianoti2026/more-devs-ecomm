@@ -1,3 +1,4 @@
+import 'package:more_devs_do_zero/shared/app_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/shared/services/auth_service.dart';
@@ -94,12 +95,24 @@ class ShoppingCartController extends ChangeNotifier {
   }
 
   Future<bool> loadCart() => _run(api.getCart);
-  Future<bool> addToCart(Products product) =>
-      _run(() => api.addItem(product.id));
+  Future<bool> addToCart(Products product, {bool track = true}) async {
+    final success = await _run(() => api.addItem(product.id));
+    if (success && track) AppAnalytics.instance.logAddToCart(product);
+    return success;
+  }
+
   Future<bool> decrementFromCart(String id) => _run(
     () => api.updateItem(id, (getProductQuantity(id) - 1).clamp(0, 999999)),
   );
-  Future<bool> removeFromCart(String id) => _run(() => api.removeItem(id));
+  Future<bool> removeFromCart(String id) async {
+    final item = cartItems.where((item) => item.id == id).firstOrNull;
+    final success = await _run(() => api.removeItem(id));
+    if (success && item != null) {
+      AppAnalytics.instance.logRemoveFromCart(item, item.quantity);
+    }
+    return success;
+  }
+
   Future<bool> clearCart() => _run(api.clearCart);
 
   Future<Map<String, dynamic>?> checkout() async {

@@ -191,7 +191,10 @@ class _ProductDetailModal extends StatelessWidget {
                             runCartAction(
                               context,
                               cartController,
-                              () => cartController.addToCart(product),
+                              () => cartController.addToCart(
+                                product,
+                                track: false,
+                              ),
                             );
                           },
                           decrement: () {

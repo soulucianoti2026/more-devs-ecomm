@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
+import 'package:more_devs_do_zero/shared/exceptions/signup_exception.dart';
 import 'package:more_devs_do_zero/shared/services/auth_service.dart';
 
 class SignupController {
@@ -39,14 +41,18 @@ class SignupController {
     }
   }
 
-  Future<AuthSession> signUp() {
-    return _authService.register(
-      name: nomeController.text,
-      email: emailController.text,
-      password: senhaController.text,
-      confirmPassword: confirmarSenhaController.text,
-      acceptedTerms: isActiveCheckBox,
-    );
+  Future<AuthSession> signUp() async {
+    try {
+      return await _authService.register(
+        name: nomeController.text,
+        email: emailController.text,
+        password: senhaController.text,
+        confirmPassword: confirmarSenhaController.text,
+        acceptedTerms: isActiveCheckBox,
+      );
+    } on AuthExeception catch (error) {
+      throw SignupException.fromAuth(error);
+    }
   }
 
   String? validateEmail(String? value) {

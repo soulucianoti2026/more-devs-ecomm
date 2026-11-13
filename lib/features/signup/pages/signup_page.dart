@@ -1,9 +1,11 @@
+import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
 import 'package:more_devs_do_zero/shared/services/auth_service.dart';
 import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
+import 'package:more_devs_do_zero/shared/exceptions/signup_exception.dart';
 import 'package:provider/provider.dart';
 import 'package:more_devs_do_zero/features/signup/controllers/signup_controller.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
@@ -21,13 +23,16 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignupPageState extends State<SignupPage> with AnalyticsMixin {
+  @override
+  String get screenName => SignupPage.route;
   late final SignupController signupController;
   final GlobalKey<FormState> key = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    logScreenView();
     signupController = SignupController(
       authService: context.read<AuthService>(),
     );
@@ -48,6 +53,7 @@ class _SignupPageState extends State<SignupPage> {
     final isFormValid = key.currentState!.validate();
 
     if (!signupController.validateCheckBox()) {
+      analytics.logSignUpFailed('terms_not_accepted');
       setState(() {});
       return;
     }
@@ -59,6 +65,7 @@ class _SignupPageState extends State<SignupPage> {
 
       try {
         final session = await signupController.signUp();
+        analytics.logSignUp();
 
         if (!mounted) return;
 
@@ -73,6 +80,9 @@ class _SignupPageState extends State<SignupPage> {
           context,
         ).pushNamedAndRemoveUntil(HomePage.route, (_) => false);
       } on AuthExeception catch (error) {
+        analytics.logSignUpFailed(
+          error is SignupException ? error.type.name : 'unknown',
+        );
         if (!mounted) return;
         AnimatedSnackBar.material(
           error.message,

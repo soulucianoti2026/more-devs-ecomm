@@ -1,3 +1,4 @@
+import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
@@ -20,12 +21,15 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with AnalyticsMixin {
+  @override
+  String get screenName => LoginPage.route;
   late LoginController _controller;
 
   @override
   void initState() {
     super.initState();
+    logScreenView();
     _controller = context.read<LoginController>();
     _controller.init();
   }
@@ -107,12 +111,18 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: () async {
                                 try {
                                   await controller.handleLogin();
+                                  analytics.logLogin();
                                   if (!context.mounted) return;
                                   Navigator.popAndPushNamed(
                                     context,
                                     HomePage.route,
                                   );
                                 } on AuthExeception catch (e) {
+                                  analytics.logLoginFailed(
+                                    e.code == 'invalid_form'
+                                        ? 'invalid_form'
+                                        : 'invalid_credentials',
+                                  );
                                   if (!context.mounted) return;
                                   AnimatedSnackBar.material(
                                     e.message,

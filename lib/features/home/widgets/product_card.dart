@@ -1,19 +1,25 @@
+import 'package:more_devs_do_zero/shared/app_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/features/home/widgets/product_detail_modal.dart';
 import 'package:more_devs_do_zero/shared/app_text_style.dart';
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.product});
+  const ProductCard({super.key, required this.product, required this.listName});
 
   final Products product;
+  final String listName;
 
   @override
   Widget build(BuildContext context) {
     final isAssetImage = product.imageUrl.startsWith('assets/');
 
     return GestureDetector(
-      onTap: () => showProductDetailModal(context, product),
+      onTap: () {
+        if (product.id.isEmpty) return;
+        AppAnalytics.instance.logViewItem(product, listName);
+        showProductDetailModal(context, product);
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(

@@ -1,3 +1,4 @@
+import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
 import 'package:more_devs_do_zero/features/home/widgets/banner_item.dart';
@@ -18,12 +19,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AnalyticsMixin {
+  @override
+  String get screenName => HomePage.route;
   final PageController _pageController = PageController();
 
   @override
   void initState() {
     super.initState();
+    logScreenView();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (!mounted) return;
       context.read<ShoppingCartController>().loadCart();

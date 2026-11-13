@@ -1,4 +1,9 @@
 import 'package:dio/dio.dart';
+import 'session_storage.dart';
+import '../http/api_client.dart';
+import '../http/dio_api_client.dart';
+import '../http/api_config.dart';
+import '../exceptions/api_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:more_devs_do_zero/features/login/model/user.dart';
 import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
@@ -12,25 +17,57 @@ class AuthSession {
 }
 
 class AuthService extends ChangeNotifier {
-  static const baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'https://api-production-c0289.up.railway.app/api/v1',
-  );
+  static const baseUrl = ApiConfig.baseUrl;
 
-  AuthService({Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              baseUrl: baseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              sendTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 30),
-              contentType: Headers.jsonContentType,
-            ),
-          );
+  AuthService({ApiClient? client, Dio? dio, SessionStorage? storage})
+    : assert(client == null || dio == null),
+      _storage = storage ?? SessionStorage(),
+      _client = client ?? DioApiClient(dio: dio);
 
-  final Dio _dio;
+  final ApiClient _client;
+  final SessionStorage _storage;
+  Future<void> _storageTask = Future<void>.value();
+  int _sessionVersion = 0;
+
+  // Serialize writes so a previous logout cannot erase a newer login.
+  Future<void> _updateStorage(Future<void> Function() action) {
+    return _storageTask = _storageTask.then((_) => action()).catchError((
+      Object _,
+    ) {
+      // Storage failures must not prevent API authentication or local logout.
+    });
+  }
+
+  Future<void> restoreSession() async {
+    final expected = _sessionVersion;
+    try {
+      await _storageTask;
+      final saved = await _storage.read();
+      if (expected != _sessionVersion) return;
+      if (saved == null) return;
+      if (!saved.expiresAt.isAfter(DateTime.now())) {
+        await _updateStorage(_storage.clear);
+        return;
+      }
+      final body = await _client.get(
+        '/users/me',
+        headers: {'Authorization': 'Bearer ${saved.token}'},
+      );
+      if (expected != _sessionVersion) return;
+      final user = User.fromJson(body as Map<String, dynamic>);
+      _session = AuthSession(user, saved.token, saved.expiresAt);
+      _sessionVersion++;
+      notifyListeners();
+    } on ApiException catch (error) {
+      if (error.statusCode == 401 && expected == _sessionVersion) {
+        await _updateStorage(_storage.clear);
+      }
+      // Keep the saved token on temporary network/server failures.
+    } catch (_) {
+      // Startup remains available if local storage cannot be read.
+    }
+  }
+
   AuthSession? _session;
   AuthSession? get session => _session;
   VoidCallback? onSessionExpired;
@@ -38,11 +75,12 @@ class AuthService extends ChangeNotifier {
   Future<AuthSession> login({
     required String email,
     required String password,
+    bool rememberMe = false,
   }) async {
     return _authenticate('/auth/login', {
       'email': email.trim(),
       'password': password,
-    });
+    }, rememberMe: rememberMe);
   }
 
   Future<AuthSession> register({
@@ -63,8 +101,9 @@ class AuthService extends ChangeNotifier {
 
   Future<AuthSession> _authenticate(
     String path,
-    Map<String, dynamic> data,
-  ) async {
+    Map<String, dynamic> data, {
+    bool rememberMe = false,
+  }) async {
     final body = await _post(path, data);
     if (body is! Map<String, dynamic> ||
         body['user'] is! Map<String, dynamic> ||
@@ -91,7 +130,13 @@ class AuthService extends ChangeNotifier {
       DateTime.now().add(Duration(seconds: expiresIn)),
     );
     _session = result;
+    _sessionVersion++;
     notifyListeners();
+    await _updateStorage(
+      () => rememberMe
+          ? _storage.write(SavedSession(token, result.expiresAt))
+          : _storage.clear(),
+    );
     return result;
   }
 
@@ -129,7 +174,9 @@ class AuthService extends ChangeNotifier {
   }
 
   void logout() {
+    _sessionVersion++;
     _session = null;
+    _updateStorage(_storage.clear);
     notifyListeners();
   }
 
@@ -141,22 +188,9 @@ class AuthService extends ChangeNotifier {
 
   Future<dynamic> _post(String path, Map<String, dynamic> data) async {
     try {
-      return (await _dio.post<dynamic>(path, data: data)).data;
-    } on DioException catch (error) {
-      final body = error.response?.data;
-      if (body is Map && body['message'] is String) {
-        throw AuthExeception(body['message'] as String);
-      }
-      final message = switch (error.type) {
-        DioExceptionType.connectionTimeout ||
-        DioExceptionType.sendTimeout ||
-        DioExceptionType.receiveTimeout =>
-          'A conexão demorou demais. Tente novamente.',
-        DioExceptionType.connectionError =>
-          'Não foi possível conectar. Verifique sua conexão.',
-        _ => 'Não foi possível concluir a solicitação. Tente novamente.',
-      };
-      throw AuthExeception(message);
+      return await _client.post(path, data: data);
+    } on ApiException catch (error) {
+      throw AuthExeception.fromApi(error);
     }
   }
 }

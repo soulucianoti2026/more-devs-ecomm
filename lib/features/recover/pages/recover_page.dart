@@ -1,3 +1,4 @@
+import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/login/controllers/login_controller.dart';
@@ -17,7 +18,9 @@ class RecoverPage extends StatefulWidget {
   State<RecoverPage> createState() => _RecoverPageState();
 }
 
-class _RecoverPageState extends State<RecoverPage> {
+class _RecoverPageState extends State<RecoverPage> with AnalyticsMixin {
+  @override
+  String get screenName => RecoverPage.route;
   late final RecoverController _controller;
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
@@ -28,6 +31,7 @@ class _RecoverPageState extends State<RecoverPage> {
   @override
   void initState() {
     super.initState();
+    logScreenView();
     _controller = RecoverController(authService: context.read<AuthService>());
   }
 
@@ -41,6 +45,9 @@ class _RecoverPageState extends State<RecoverPage> {
 
   Future<void> _submit() async {
     if (_controller.isLoading || !_formKey.currentState!.validate()) return;
+    if (_controller.step == RecoveryStep.email) {
+      analytics.logPasswordResetRequest();
+    }
     setState(() => _controller.isLoading = true);
     try {
       switch (_controller.step) {

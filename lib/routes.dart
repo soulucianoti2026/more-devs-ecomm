@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/features/shoppingcart/checkout_page.dart';
 import 'package:more_devs_do_zero/features/orders/orders_page.dart';
 import 'package:more_devs_do_zero/features/profile/profile_page.dart';
 import 'package:more_devs_do_zero/features/home/models/category_model.dart';
@@ -11,6 +12,7 @@ import 'package:more_devs_do_zero/features/signup/pages/signup_page.dart';
 
 class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
+    CheckoutPage.route: (_) => const CheckoutPage(),
     ProfilePage.route: (_) => const ProfilePage(),
     OrdersPage.route: (_) => const OrdersPage(),
     OrderDetailPage.route: (context) => OrderDetailPage(

@@ -9,6 +9,7 @@ class LoginController extends ChangeNotifier {
   LoginController({AuthService? authService})
     : _authService = authService ?? AuthService() {
     _authService.addListener(_onSessionChanged);
+    user = _authService.session?.user;
   }
   final AuthService _authService;
   late final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
@@ -66,7 +67,10 @@ class LoginController extends ChangeNotifier {
 
   Future<void> handleLogin() async {
     if (!(key.currentState?.validate() ?? false)) {
-      throw AuthExeception('Confira o e-mail e a senha informados.');
+      throw AuthExeception(
+        'Confira o e-mail e a senha informados.',
+        code: 'invalid_form',
+      );
     }
 
     changeIsLoading(true);
@@ -82,6 +86,7 @@ class LoginController extends ChangeNotifier {
     final session = await _authService.login(
       email: email,
       password: senhaController.text,
+      rememberMe: isActiveCheckBox,
     );
     user = session.user;
     try {

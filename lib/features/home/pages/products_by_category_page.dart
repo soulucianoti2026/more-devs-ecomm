@@ -1,3 +1,4 @@
+import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/controllers/products_by_category_controller.dart';
 import 'package:more_devs_do_zero/features/home/models/category_model.dart';
@@ -14,18 +15,32 @@ class ProductsByCategoryPage extends StatefulWidget {
   State<ProductsByCategoryPage> createState() => _ProductsByCategoryPageState();
 }
 
-class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
+class _ProductsByCategoryPageState extends State<ProductsByCategoryPage>
+    with AnalyticsMixin {
+  @override
+  String get screenName => ProductsByCategoryPage.route;
   @override
   void initState() {
     super.initState();
+    logScreenView();
+    _controller = context.read<ProductsByCategoryController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<ProductsByCategoryController>().getProductsByCategory(
           widget.category.id,
+          listName: widget.category.name,
         );
       }
     });
   }
+
+  @override
+  void dispose() {
+    _controller?.cancelPendingSearch();
+    super.dispose();
+  }
+
+  ProductsByCategoryController? _controller;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -105,6 +120,7 @@ class _ProductsByCategoryPageState extends State<ProductsByCategoryPage> {
                               ),
                           itemBuilder: (context, index) => ProductCard(
                             product: controller.categoryProducts[index],
+                            listName: widget.category.name,
                           ),
                         ),
               },

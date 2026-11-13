@@ -1,33 +1,20 @@
 import 'package:dio/dio.dart';
+import '../http/api_client.dart';
+import '../http/dio_api_client.dart';
+import '../exceptions/api_exception.dart';
+export '../exceptions/api_exception.dart';
 import 'package:more_devs_do_zero/features/home/models/category_model.dart';
 import 'package:more_devs_do_zero/features/home/models/products_model.dart';
 import 'package:more_devs_do_zero/features/login/model/user.dart';
 import 'package:more_devs_do_zero/shared/services/auth_service.dart';
 
-class ApiException implements Exception {
-  const ApiException(this.message);
-  final String message;
-  @override
-  String toString() => message;
-}
-
 class StoreService {
-  StoreService(this.auth, {Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              baseUrl: AuthService.baseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 30),
-              sendTimeout: const Duration(seconds: 15),
-              contentType: Headers.jsonContentType,
-            ),
-          );
+  StoreService(this.auth, {ApiClient? client, Dio? dio})
+    : assert(client == null || dio == null),
+      _client = client ?? DioApiClient(dio: dio);
 
   final AuthService auth;
-  final Dio _dio;
-
+  final ApiClient _client;
   Future<Map<String, dynamic>> request(
     String path, {
     String method = 'GET',
@@ -42,37 +29,35 @@ class StoreService {
       throw const ApiException('Sua sessão expirou. Faça login novamente.');
     }
     try {
-      final response = await _dio.request<dynamic>(
+      final response = await _client.request(
         path,
         data: data,
-        queryParameters: query,
-        options: Options(
-          method: method,
-          headers: {
-            if (authenticated)
-              'Authorization': 'Bearer ${session!.accessToken}',
-          },
-        ),
+        query: query,
+
+        method: method,
+        headers: {
+          if (authenticated) 'Authorization': 'Bearer ${session!.accessToken}',
+        },
       );
       if (authenticated && !identical(session, auth.session)) {
         throw const ApiException('A sessão foi alterada.');
       }
-      if (response.data is! Map<String, dynamic>) {
+      if (response is! Map<String, dynamic>) {
         throw const ApiException('Resposta inválida do servidor.');
       }
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (error) {
-      if (authenticated && error.response?.statusCode == 401) {
+      return response;
+    } on ApiException catch (error) {
+      if (authenticated && error.statusCode == 401) {
         auth.expireSession(session!);
-        throw const ApiException('Sua sessão expirou. Faça login novamente.');
+        throw ApiException(
+          'Sua sessão expirou. Faça login novamente.',
+          code: error.code,
+          statusCode: error.statusCode,
+          details: error.details,
+          kind: error.kind,
+        );
       }
-      final body = error.response?.data;
-      if (body is Map && body['message'] is String) {
-        throw ApiException(body['message'] as String);
-      }
-      throw const ApiException(
-        'Não foi possível conectar ao servidor. Tente novamente.',
-      );
+      rethrow;
     }
   }
 

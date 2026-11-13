@@ -1,3 +1,5 @@
+import 'package:more_devs_do_zero/features/shoppingcart/checkout_page.dart';
+import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:more_devs_do_zero/features/home/widgets/quantity_selector.dart';
 import 'package:more_devs_do_zero/features/shoppingcart/confirm_product_removal.dart';
@@ -16,30 +18,36 @@ class ShoppingCartPage extends StatefulWidget {
   State<ShoppingCartPage> createState() => ShoppingCartPageState();
 }
 
-class ShoppingCartPageState extends State<ShoppingCartPage> {
+class ShoppingCartPageState extends State<ShoppingCartPage>
+    with AnalyticsMixin {
+  @override
+  String get screenName => ShoppingCartPage.route;
   @override
   void initState() {
     super.initState();
+    logScreenView();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<ShoppingCartController>().loadCart();
+      if (mounted) _loadCart();
     });
   }
 
-  Future<void> _checkout(ShoppingCartController controller) async {
-    final order = await controller.checkout();
-    if (!mounted) return;
-    if (order == null) {
-      if (controller.error != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(controller.error!)));
-      }
-      return;
+  bool _viewLogged = false;
+  Future<void> _loadCart() async {
+    final controller = context.read<ShoppingCartController>();
+    final success = await controller.loadCart();
+    if (mounted && success && !_viewLogged) {
+      _viewLogged = true;
+      analytics.logViewCart(controller.cartItems, controller.getTotalPrice());
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Pedido criado com sucesso!')));
-    Navigator.pushNamed(context, OrderDetailPage.route, arguments: order['id']);
+  }
+
+  void _checkout(ShoppingCartController controller) {
+    if (controller.isLoading || controller.cartItems.isEmpty) return;
+    analytics.logBeginCheckout(
+      controller.cartItems,
+      controller.getTotalPrice(),
+    );
+    Navigator.pushNamed(context, CheckoutPage.route);
   }
 
   @override
@@ -78,7 +86,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                 children: [
                   Text(controller.error!),
                   TextButton(
-                    onPressed: controller.loadCart,
+                    onPressed: _loadCart,
                     child: const Text('Tentar novamente'),
                   ),
                 ],
@@ -182,7 +190,10 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                                     runCartAction(
                                       context,
                                       controller,
-                                      () => controller.addToCart(item),
+                                      () => controller.addToCart(
+                                        item,
+                                        track: false,
+                                      ),
                                     );
                                   },
                                   decrement: () {
@@ -240,7 +251,7 @@ class ShoppingCartPageState extends State<ShoppingCartPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       AppElevatedButton(
-                        label: 'Finalizar Compra',
+                        label: 'Continuar',
                         isLoading: controller.isLoading,
                         onPressed: () => _checkout(controller),
                         type: ButtonType.filled,

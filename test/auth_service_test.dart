@@ -6,6 +6,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:more_devs_do_zero/features/recover/controllers/recover_controller.dart';
 import 'package:more_devs_do_zero/shared/exceptions/auth_exeception.dart';
 import 'package:more_devs_do_zero/shared/services/auth_service.dart';
+import 'package:more_devs_do_zero/shared/services/session_storage.dart';
+
+class MemorySessionStorage extends SessionStorage {
+  SavedSession? saved;
+  @override
+  Future<SavedSession?> read() async => saved;
+  @override
+  Future<void> write(SavedSession session) async {
+    saved = session;
+  }
+
+  @override
+  Future<void> clear() async {
+    saved = null;
+  }
+}
 
 class StubAdapter implements HttpClientAdapter {
   late RequestOptions request;
@@ -42,6 +58,7 @@ class StubAdapter implements HttpClientAdapter {
 void main() {
   late StubAdapter adapter;
   late AuthService service;
+  late MemorySessionStorage storage;
   final authResponse = {
     'user': {'id': 'user-id', 'name': 'Ana', 'email': 'ana@example.com'},
     'tokens': {
@@ -55,8 +72,90 @@ void main() {
     adapter = StubAdapter();
     final dio = Dio(BaseOptions(baseUrl: AuthService.baseUrl));
     dio.httpClientAdapter = adapter;
-    service = AuthService(dio: dio);
+    storage = MemorySessionStorage();
+    service = AuthService(dio: dio, storage: storage);
   });
+
+  test(
+    'Remembered login restores user from API with saved Bearer token',
+    () async {
+      adapter.body = authResponse;
+      await service.login(
+        email: 'ana@example.com',
+        password: 'Senha@1',
+        rememberMe: true,
+      );
+      expect(storage.saved?.token, 'test-token');
+      final expiresAt = storage.saved!.expiresAt;
+      final dio = Dio(BaseOptions(baseUrl: AuthService.baseUrl));
+      dio.httpClientAdapter = adapter;
+      final restarted = AuthService(dio: dio, storage: storage);
+      adapter.body = {
+        'id': 'user-id',
+        'name': 'Nome atualizado',
+        'email': 'ana@example.com',
+      };
+      await restarted.restoreSession();
+      expect(adapter.request.method, 'GET');
+      expect(adapter.request.path, '/users/me');
+      expect(adapter.request.headers['Authorization'], 'Bearer test-token');
+      expect(restarted.session?.user.nome, 'Nome atualizado');
+      expect(restarted.session?.expiresAt, expiresAt);
+      restarted.logout();
+      await restarted.restoreSession();
+      expect(storage.saved, isNull);
+      expect(restarted.session, isNull);
+    },
+  );
+
+  test('Login without remember-me removes a previous saved session', () async {
+    storage.saved = SavedSession(
+      'old',
+      DateTime.now().add(const Duration(days: 1)),
+    );
+    adapter.body = authResponse;
+    await service.login(email: 'ana@example.com', password: 'Senha@1');
+    expect(storage.saved, isNull);
+    expect(service.session, isNotNull);
+  });
+
+  test('Expired saved token is removed without restoring a session', () async {
+    storage.saved = SavedSession(
+      'expired',
+      DateTime.now().subtract(const Duration(seconds: 1)),
+    );
+    await service.restoreSession();
+    expect(storage.saved, isNull);
+    expect(service.session, isNull);
+  });
+
+  for (final status in [401, 500]) {
+    test('Restoration HTTP $status only clears invalid credentials', () async {
+      storage.saved = SavedSession(
+        'saved',
+        DateTime.now().add(const Duration(days: 1)),
+      );
+      adapter.status = status;
+      adapter.body = {'message': 'Erro'};
+      await service.restoreSession();
+      expect(service.session, isNull);
+      expect(storage.saved == null, status == 401);
+    });
+  }
+
+  test(
+    'Restoration timeout preserves credentials for the next launch',
+    () async {
+      storage.saved = SavedSession(
+        'saved',
+        DateTime.now().add(const Duration(days: 1)),
+      );
+      adapter.timeout = true;
+      await service.restoreSession();
+      expect(service.session, isNull);
+      expect(storage.saved?.token, 'saved');
+    },
+  );
 
   test('Login maps user and token, preserving the exact password', () async {
     adapter.body = authResponse;

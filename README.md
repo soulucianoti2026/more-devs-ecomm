@@ -14,9 +14,14 @@ Login, cadastro e recuperação de senha usam Dio e o contrato em
 - `POST /auth/password/verify-code`: troca o código por um `resetToken`.
 - `POST /auth/password/reset`: envia o `resetToken` e a nova senha.
 
-O token de acesso fica em memória em `AuthService.session` e é descartado no
-logout. “Lembrar-me” persiste somente o e-mail, sem salvar senha ou token.
-Ao reiniciar o aplicativo, é necessário autenticar novamente. O arquivo antigo
+Com “Lembrar-me” marcado, o token e sua validade são persistidos com
+`flutter_secure_storage`; a senha nunca é salva. O e-mail continua em
+`SharedPreferences`. Ao abrir o app, `AuthService.restoreSession` consulta
+`GET /users/me` com o token salvo e abre a Home somente após a validação pela API.
+Logout, token expirado e HTTP 401 removem a sessão salva. Falhas temporárias de
+rede preservam o token para uma próxima abertura, mas exibem o login.
+Sem “Lembrar-me”, a sessão permanece somente em memória.
+O arquivo antigo
 `mock_auth.json` não é mais lido nem atualizado; contas locais do mock precisam
 ser cadastradas na API.
 
@@ -67,3 +72,30 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Camada HTTP e exceções
+
+`ApiClient` define a abstração de transporte em `lib/shared/http`.
+`DioApiClient` centraliza GET, POST, PUT, PATCH, DELETE, URL base, timeouts
+ e conversão de falhas. `AuthService` e `StoreService` recebem `ApiClient`
+ por injeção; o parâmetro `dio` permanece compatível com os testes existentes.
+
+O tratamento segue `Error` em https://api-production-c0289.up.railway.app/docs/json:
+`code` e `message`, com `details` opcional contendo `{field, message}`.
+`ApiException` preserva esses campos, o status HTTP e a categoria da falha.
+Respostas sem o contrato recebem mensagem de fallback; falhas de timeout,
+conexão, cancelamento e certificado recebem mensagens específicas.
+`AuthExeception` herda `ApiException` e mantém os mesmos metadados.
+HTTP 401 em requisições autenticadas continua expirando apenas a sessão
+que iniciou a chamada. Não há repetição automática de requisições de escrita.
+
+```dart
+try {
+  await store.addItem(productId);
+} on ApiException catch (error) {
+  // error.message: mensagem para o usuário
+  // error.code: código estável para decisões do aplicativo
+  // error.details: erros por campo (field/message)
+  // error.statusCode e error.kind: status HTTP e categoria da falha
+}
+```
