@@ -115,7 +115,7 @@ class AppAnalytics {
   Future<void> initialize() async {
     if (_firebase != null) return;
     try {
-      await Firebase.initializeApp();
+      if (Firebase.apps.isEmpty) await Firebase.initializeApp();
       final analytics = FirebaseAnalytics.instance;
       observer = FirebaseAnalyticsObserver(
         analytics: analytics,

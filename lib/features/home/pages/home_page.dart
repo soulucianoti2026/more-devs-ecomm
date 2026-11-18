@@ -1,5 +1,6 @@
 import 'package:more_devs_do_zero/shared/analytics_mixin.dart';
 import 'package:flutter/material.dart';
+import 'package:more_devs_do_zero/shared/services/remote_config_service.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
 import 'package:more_devs_do_zero/features/home/widgets/banner_item.dart';
 import 'package:more_devs_do_zero/features/home/widgets/categories_section.dart';
@@ -84,12 +85,19 @@ class _HomePageState extends State<HomePage> with AnalyticsMixin {
                 homeController.getCategories(),
                 homeController.getProducts(),
                 _refreshProfile(),
+                context.read<AppRemoteConfig>().refresh(),
               ]);
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      context.watch<AppRemoteConfig>().welcomeMessage,
+                    ),
+                  ),
                   SizedBox(
                     height: 156,
                     child: PageView(
