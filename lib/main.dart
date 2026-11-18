@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:more_devs_do_zero/firebase_options.dart';
 import 'package:more_devs_do_zero/shared/services/remote_config_service.dart';
 import 'package:more_devs_do_zero/features/home/pages/home_page.dart';
 import 'package:more_devs_do_zero/features/home/controllers/home_controller.dart';
@@ -17,9 +16,7 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp();
   } catch (error) {
     debugPrint('Firebase indisponível: $error');
   }

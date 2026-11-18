@@ -99,3 +99,8 @@ try {
   // error.statusCode e error.kind: status HTTP e categoria da falha
 }
 ```
+
+## Segurança e configuração Firebase
+
+Antes de compilar para Android, forneça a configuração local conforme
+[SECURITY.md](SECURITY.md). Chaves e configurações reais não devem ser commitadas.

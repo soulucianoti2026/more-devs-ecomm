@@ -19,14 +19,11 @@ limitada por `max_items`; esses comportamentos de negócio não foram inventados
 
 ## Plataformas e inicialização
 
-`lib/firebase_options.dart` usa os dados Android do `google-services.json`
-existente. Não foi gerado pelo CLI. Para registrar outras plataformas ou
-regenerar a configuração oficial:
-
-```sh
-dart pub global activate flutterfire_cli
-flutterfire configure --project=ecomfirebaseapp-73b2a
-```
+O Android usa os recursos nativos gerados a partir do arquivo local
+`android/app/google-services.json`, ignorado pelo Git. Forneça esse arquivo
+antes do build seguindo [SECURITY.md](../SECURITY.md). A inicialização usa
+`Firebase.initializeApp()`; não há chave embutida em um arquivo Dart versionado.
+Outras plataformas precisam de sua própria configuração.
 
 O Firebase é inicializado antes do serviço e de `runApp`. O fetch tem timeout
 de 10 segundos, intervalo zero em debug e uma hora em release, conforme o

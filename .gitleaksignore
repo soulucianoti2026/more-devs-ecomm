@@ -1,0 +1,4 @@
+# Only audited historical findings for the key revoked on 2026-11-18.
+846badcd47a132ad40758fe11251abc394c0a2df:lib/firebase_options.dart:gcp-api-key:17
+80f6c9e4245498a7d2b414c6fdd0b3e85e753deb:android/app/google-services.json:gcp-api-key:18
+80f6c9e4245498a7d2b414c6fdd0b3e85e753deb:google-services.json:gcp-api-key:18

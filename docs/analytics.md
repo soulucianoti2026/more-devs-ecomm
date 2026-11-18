@@ -27,7 +27,8 @@ Adaptações ao código atual:
 
 ## Validação no dispositivo
 
-O Android está configurado com `android/app/google-services.json` e o plugin
+O Android requer um `android/app/google-services.json` local, ignorado pelo Git
+(consulte [SECURITY.md](../SECURITY.md)), e o plugin
 Google Services no Gradle. A inicialização usa os recursos nativos gerados pelo
 plugin, sem precisar de firebase_options.dart para esse fluxo Android.
 A configuração iOS ainda depende de GoogleService-Info.plist.
